@@ -11,7 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VacationRental.Data\VacationRental.Data.csproj" />
+    <ProjectReference Include="..\VacationRental.Data\VacationRental.Dal.csproj" />
+    <ProjectReference Include="..\VacationRental.Services.Interface\VacationRental.Services.Interface.csproj" />
   </ItemGroup>
 
 </Project>

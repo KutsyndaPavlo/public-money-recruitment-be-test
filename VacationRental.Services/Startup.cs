@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using VacationRental.Api.Models;
 using VacationRental.Data;
 using VacationRental.Data.Entities;
+using VacationRental.Services.Interface;
+using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Services
 {

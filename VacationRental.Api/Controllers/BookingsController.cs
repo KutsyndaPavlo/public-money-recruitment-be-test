@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
-using VacationRental.Api.Models;
-using VacationRental.Services;
-using VacationRental.Services.Models;
+using VacationRental.Services.Interface;
+using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Api.Controllers
 {

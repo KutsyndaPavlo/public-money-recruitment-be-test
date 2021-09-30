@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace VacationRental.Services.Models
+﻿namespace VacationRental.Services.Interface.Models
 {
     public class ServiceResponse<T> where T : class
     {

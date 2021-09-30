@@ -1,4 +1,4 @@
-﻿namespace VacationRental.Services.Models
+﻿namespace VacationRental.Services.Interface.Models
 {
     public enum ResponseStatus
     {

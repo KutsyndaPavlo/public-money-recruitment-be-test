@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using VacationRental.Api.Models;
 using VacationRental.Data.Repositiries;
-using VacationRental.Services.Models;
+using VacationRental.Services.Interface;
+using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Services
 {

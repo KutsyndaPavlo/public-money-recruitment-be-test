@@ -33,9 +33,9 @@ namespace VacationRental.Services
 
         #region Public methods
 
-        public ServiceResponse<RentalViewModel> GetById(int id)
+        public ServiceResponse<RentalViewModel> GetById(GetRentalRequest request)
         {
-            var result = _rentalsRepository.GetById(id);
+            var result = _rentalsRepository.GetById(request.RentalId);
 
             if (result == null)
             {
@@ -48,7 +48,7 @@ namespace VacationRental.Services
             return new ServiceResponse<RentalViewModel>
             {
                 Status = ResponseStatus.Success,
-                Result = _mapper.Map<RentalViewModel>(_rentalsRepository.GetById(id))
+                Result = _mapper.Map<RentalViewModel>(_rentalsRepository.GetById(request.RentalId))
             };
         }
 
@@ -57,15 +57,24 @@ namespace VacationRental.Services
             return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(_rentalsRepository.Add(_mapper.Map<RentalEntityCreate>(units))), Status = ResponseStatus.Success }; ;
         }
 
-        public ServiceResponse<ResourceIdViewModel> Update(int id, RentalBindingModel units)
+        public ServiceResponse<ResourceIdViewModel> Update(PutRentalRequest request)
         {
-            var rental = _rentalsRepository.GetById(id);
+            var rental = _rentalsRepository.GetById(request.RentalId);
+
+            if (rental == null)
+            {
+
+                return new ServiceResponse<ResourceIdViewModel>
+                {
+                    Status = ResponseStatus.NotFound
+                };
+            }
             var bookings = _bookingsRepository.GetBookings(rental.Id, default(DateTime?), DateTime.Now).ToList();
 
 
-            if (units.Units < rental.Units)
+            if (request.Units < rental.Units)
             {
-                var uns = Enumerable.Range(units.Units + 1, rental.Units - units.Units).ToList();
+                var uns = Enumerable.Range(request.Units + 1, rental.Units - request.Units).ToList();
 
                 if (bookings.Any(x => uns.Any(y => y == x.UnitId)))
                 {
@@ -86,7 +95,7 @@ namespace VacationRental.Services
 
                        }
 
-                       current.PreparationEnd = current.PreparationStart.AddDays(units.PreparationTimeInDays - 1);
+                       current.PreparationEnd = current.PreparationStart.AddDays(request.PreparationTimeInDays - 1);
 
                        return current;
                    });
@@ -94,8 +103,8 @@ namespace VacationRental.Services
 
 
 
-            var rr = _mapper.Map<RentalEntity>(units);
-            rr.Id = id;
+            var rr = _mapper.Map<RentalEntity>(request);
+            rr.Id = request.RentalId;
 
             foreach (var tt in bookings)
             {

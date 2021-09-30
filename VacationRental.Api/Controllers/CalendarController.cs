@@ -15,15 +15,18 @@ namespace VacationRental.Api.Controllers
         #region Fields
 
         private readonly ICalendarService _calendarService;
+        private readonly ICalendarValidationService _calendarValidationService;
 
         #endregion
 
         #region Constructor
 
         public CalendarController(ICalendarService calendarService,
+                                  ICalendarValidationService calendarValidationService,
                                   ILogger<VacationRentalController> logger) : base(logger)
         {
             _calendarService = calendarService;
+            _calendarValidationService = calendarValidationService;
         }
 
         #endregion
@@ -39,9 +42,21 @@ namespace VacationRental.Api.Controllers
         {
             return ProcessRequest(() =>
             {
-                // validation
+                var request = new GetCalendarRequest
+                {
+                    RentalId = rentalId,
+                    StartDate = start,
+                    Nights = nights
+                };
 
-                var result = _calendarService.Get(rentalId, start, nights);
+                var validationResult = _calendarValidationService.ValidateGetRequest(request);
+
+                if (validationResult.Status == ResponseStatus.ValidationFailed)
+                {
+                    return BadRequest(validationResult.Result);
+                }
+
+                var result = _calendarService.Get(request);
 
                 return Ok(result.Result);
             });

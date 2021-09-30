@@ -28,6 +28,9 @@ namespace VacationRental.Api
             services.AddSingleton<IRentalsService, RentalsService>();
             services.AddSingleton<IBookingsService, BookingsService>();
             services.AddSingleton<ICalendarService, CalendarService>();
+            services.AddSingleton<IBookingValidatinService, BookingValidatinService>();
+            services.AddSingleton<IRentalValidationService, RentalValidationService>();
+            services.AddSingleton<ICalendarValidationService, CalendarValidationService>();
 
             services.ConfigureServiceDependencies();
         }

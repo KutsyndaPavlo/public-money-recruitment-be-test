@@ -19,9 +19,9 @@ namespace VacationRental.Services
             _rentalsRepository = rentalsRepository;
             _mapper = mapper;
         }
-        public ServiceResponse<BookingViewModel> Get(int id)
+        public ServiceResponse<BookingViewModel> Get(GetBookingRequest request)
         {
-            return new ServiceResponse<BookingViewModel> { Result = _mapper.Map<BookingViewModel>(_bookingsRepository.GetById(id)), Status = ResponseStatus.Success };
+            return new ServiceResponse<BookingViewModel> { Result = _mapper.Map<BookingViewModel>(_bookingsRepository.GetById(request.BookingId)), Status = ResponseStatus.Success };
         }
 
         public ServiceResponse<ResourceIdViewModel> Add(BookingBindingModel rentalEntityCreate) 

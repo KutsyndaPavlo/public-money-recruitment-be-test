@@ -14,22 +14,22 @@ namespace VacationRental.Services
         {
             _bookingsRepository = bookingsRepository;
         }
-        public ServiceResponse<CalendarViewModel> Get(int rentalId, DateTime start, int nights)
+        public ServiceResponse<CalendarViewModel> Get(GetCalendarRequest request)
         {
-            var bookings = _bookingsRepository.GetBookings(rentalId, start, start.AddDays(nights));
+            var bookings = _bookingsRepository.GetBookings(request.RentalId, request.StartDate, request.StartDate.AddDays(request.Nights));
 
             var result = new CalendarViewModel
             {
-                RentalId = rentalId,
+                RentalId = request.RentalId,
                 Dates = new List<CalendarDateViewModel>(),
                 
             };
 
-            for (var i = 0; i < nights; i++)
+            for (var i = 0; i < request.Nights; i++)
             {
                 var date = new CalendarDateViewModel
                 {
-                    Date = start.Date.AddDays(i),
+                    Date = request.StartDate.Date.AddDays(i),
                     Bookings = new List<CalendarBookingViewModel>(),
                     PreparationTimes = new List<CalendarPreparationTimeViewModel>()
                 };

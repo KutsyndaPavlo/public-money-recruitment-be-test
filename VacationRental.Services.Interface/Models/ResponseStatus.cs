@@ -4,6 +4,7 @@
     {
         Success,
         NotFound,
-        UpdateConflict
+        UpdateConflict,
+        ValidationFailed
     }
 }

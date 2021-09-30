@@ -4,10 +4,10 @@ namespace VacationRental.Services.Interface
 {
     public interface IRentalsService
     {
-        ServiceResponse<ResourceIdViewModel> Add(RentalBindingModel units);
+        ServiceResponse<ResourceIdViewModel> Add(RentalBindingModel request);
 
-        ServiceResponse<RentalViewModel> GetById(int id);
+        ServiceResponse<RentalViewModel> GetById(GetRentalRequest request);
 
-        ServiceResponse<ResourceIdViewModel> Update(int id, RentalBindingModel units);
+        ServiceResponse<ResourceIdViewModel> Update(PutRentalRequest request);
     }
 }

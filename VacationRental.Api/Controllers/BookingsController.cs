@@ -14,16 +14,19 @@ namespace VacationRental.Api.Controllers
         #region Fields 
 
         private readonly IBookingsService _bookingsService;
+        private readonly IBookingValidatinService _bookingValidatinService;
         private const string BookingNotFoundErrorMessage = "Booking not found";
 
         #endregion
 
         #region Constructor
 
-        public BookingsController(IBookingsService bookingsService, 
-                                  ILogger<VacationRentalController> logger) : base (logger)
+        public BookingsController(IBookingsService bookingsService,
+                                  IBookingValidatinService bookingValidatinService,
+                                  ILogger<VacationRentalController> logger) : base(logger)
         {
             _bookingsService = bookingsService;
+            _bookingValidatinService = bookingValidatinService;
         }
 
         #endregion
@@ -35,15 +38,21 @@ namespace VacationRental.Api.Controllers
         [SwaggerOperation(Tags = new[] { "Get booking by id" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The booking", typeof(BookingViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Booking not found", typeof(string))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public IActionResult Get(int bookingId)
         {
             return ProcessRequest(() =>
             {
-                // validation
+                var request = new GetBookingRequest { BookingId = bookingId };
 
-                var result = _bookingsService.Get(bookingId);
+                var validationResult = _bookingValidatinService.ValidateGetRequest(request);
+                if (validationResult.Status == ResponseStatus.ValidationFailed)
+                {
+                    return BadRequest(validationResult.Result);
+                }
 
+                var result = _bookingsService.Get(request);
                 if (result.Status == ResponseStatus.NotFound)
                 {
                     return NotFound(BookingNotFoundErrorMessage);
@@ -59,14 +68,17 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during adding a booking")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
-        public IActionResult Post(BookingBindingModel model)
+        public IActionResult Post(BookingBindingModel request)
         {
             return ProcessRequest(() =>
             {
-                // validation
+                var validationResult = _bookingValidatinService.ValidatePostRequest(request);
+                if (validationResult.Status == ResponseStatus.ValidationFailed)
+                {
+                    return BadRequest(validationResult.Result);
+                }
 
-                var result = _bookingsService.Add(model);
-
+                var result = _bookingsService.Add(request);
                 if (result.Status == ResponseStatus.UpdateConflict)
                 {
                     return Conflict();

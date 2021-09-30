@@ -14,6 +14,7 @@ namespace VacationRental.Api.Controllers
         #region Fields
 
         private readonly IRentalsService _rentalsService;
+        private readonly IRentalValidationService _rentalValidationService;
         private const string RentalNotFoundMessage = "Rental not found";
 
         #endregion
@@ -21,9 +22,11 @@ namespace VacationRental.Api.Controllers
         #region Constructor
 
         public RentalsController(IRentalsService rentalsService,
+                                 IRentalValidationService rentalValidationService,
                                  ILogger<VacationRentalController> logger) : base(logger)
         {
             _rentalsService = rentalsService;
+            _rentalValidationService = rentalValidationService;
         }
 
         #endregion
@@ -41,10 +44,18 @@ namespace VacationRental.Api.Controllers
         {
             return ProcessRequest(() =>
             {
-                // validation
+                var request = new GetRentalRequest
+                {
+                    RentalId = rentalId
+                };
 
-                var result = _rentalsService.GetById(rentalId);
+                var validationResult = _rentalValidationService.ValidateGetRequest(request);
+                if (validationResult.Status == ResponseStatus.ValidationFailed)
+                {
+                    return BadRequest(validationResult.Result);
+                }
 
+                var result = _rentalsService.GetById(request);
                 if (result.Status == ResponseStatus.NotFound)
                 {
                     return NotFound(RentalNotFoundMessage);
@@ -59,13 +70,17 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "The created rental id", typeof(ResourceIdViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
-        public IActionResult Post(RentalBindingModel model)
+        public IActionResult Post(RentalBindingModel request)
         {
             return ProcessRequest(() =>
             {
-                // validation
+                var validationResult = _rentalValidationService.ValidatePostRequest(request);
+                if (validationResult.Status == ResponseStatus.ValidationFailed)
+                {
+                    return BadRequest(validationResult.Result);
+                }
 
-                var result = _rentalsService.Add(model);
+                var result = _rentalsService.Add(request);
 
                 return CreatedAtAction(nameof(Get), new { rentalId = result.Result.Id }, result.Result);
             });
@@ -76,21 +91,37 @@ namespace VacationRental.Api.Controllers
         [SwaggerOperation(Tags = new[] { "Update rental" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The updated rental", typeof(ResourceIdViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Rental not found", typeof(string))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during rental updating")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public IActionResult Put(int rentalId, [FromBody] RentalBindingModel model)
         {
             return ProcessRequest(() =>
             {
-                // Validation
-                var result = _rentalsService.Update(rentalId, model);
-
-                if (result.Status == ResponseStatus.UpdateConflict)
+                var request = new PutRentalRequest
                 {
-                    return Conflict();
+                    RentalId = rentalId,
+                    Units = model.Units,
+                    PreparationTimeInDays = model.PreparationTimeInDays
+                };
+
+                var validationResult = _rentalValidationService.ValidatePutRequest(request);
+                if (validationResult.Status == ResponseStatus.ValidationFailed)
+                {
+                    return BadRequest(validationResult.Result);
                 }
 
-                return Ok(result.Result);
+                var result = _rentalsService.Update(request);
+
+                switch (result.Status) 
+                {
+                    case ResponseStatus.NotFound:
+                        return NotFound();
+                    case ResponseStatus.UpdateConflict:
+                        return Conflict();
+                    default:
+                        return Ok(result.Result);
+                }
             }); 
         }
 

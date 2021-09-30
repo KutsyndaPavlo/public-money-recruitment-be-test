@@ -15,6 +15,7 @@ namespace VacationRental.Services
                 config.CreateMap<RentalEntity, RentalViewModel>().ReverseMap();
                 config.CreateMap<RentalEntity, ResourceIdViewModel>();
                 config.CreateMap<RentalBindingModel, RentalEntityCreate>();
+                config.CreateMap<PutRentalRequest, RentalEntity>();
                 config.CreateMap<RentalBindingModel, RentalEntity>();
                 config.CreateMap<BookingEntity, BookingViewModel>()
                       .ForMember(d => d.Unit, opt => opt.MapFrom(x => x.UnitId))

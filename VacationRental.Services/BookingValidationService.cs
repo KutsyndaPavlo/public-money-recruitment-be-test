@@ -4,7 +4,7 @@ using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Services
 {
-    public class BookingValidatinService : IBookingValidatinService
+    public class BookingValidationService : IBookingValidatinService
     {
         #region Fields
 
@@ -17,7 +17,7 @@ namespace VacationRental.Services
 
         #region Fields
 
-        public BookingValidatinService(IRentalsRepository rentalRepository)
+        public BookingValidationService(IRentalsRepository rentalRepository)
         {
             _rentalRepository = rentalRepository;
         }

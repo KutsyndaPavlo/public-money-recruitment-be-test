@@ -1,72 +1,82 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 using VacationRental.Api.Models;
+using VacationRental.Services;
+using VacationRental.Services.Models;
 
 namespace VacationRental.Api.Controllers
 {
     [Route("api/v1/bookings")]
     [ApiController]
-    public class BookingsController : ControllerBase
+    public class BookingsController : VacationRentalController
     {
-        private readonly IDictionary<int, RentalViewModel> _rentals;
-        private readonly IDictionary<int, BookingViewModel> _bookings;
+        #region Fields 
 
-        public BookingsController(
-            IDictionary<int, RentalViewModel> rentals,
-            IDictionary<int, BookingViewModel> bookings)
+        private readonly IBookingsService _bookingsService;
+        private const string BookingNotFoundErrorMessage = "Booking not found";
+
+        #endregion
+
+        #region Constructor
+
+        public BookingsController(IBookingsService bookingsService, 
+                                  ILogger<VacationRentalController> logger) : base (logger)
         {
-            _rentals = rentals;
-            _bookings = bookings;
+            _bookingsService = bookingsService;
         }
+
+        #endregion
+
+        #region Actions
 
         [HttpGet]
         [Route("{bookingId:int}")]
-        public BookingViewModel Get(int bookingId)
+        [SwaggerOperation(Tags = new[] { "Get booking by id" })]
+        [SwaggerResponse(StatusCodes.Status200OK, "The booking", typeof(BookingViewModel))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
+        public IActionResult Get(int bookingId)
         {
-            if (!_bookings.ContainsKey(bookingId))
-                throw new ApplicationException("Booking not found");
+            return ProcessRequest(() =>
+            {
+                // validation
 
-            return _bookings[bookingId];
+                var result = _bookingsService.Get(bookingId);
+
+                if (result.Status == ResponseStatus.NotFound)
+                {
+                    return NotFound(BookingNotFoundErrorMessage);
+                }
+
+                return Ok(result.Result);
+            });
         }
 
         [HttpPost]
-        public ResourceIdViewModel Post(BookingBindingModel model)
+        [SwaggerOperation(Tags = new[] { "Create booking" })]
+        [SwaggerResponse(StatusCodes.Status200OK, "The created booking id", typeof(ResourceIdViewModel))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during adding a booking")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
+        public IActionResult Post(BookingBindingModel model)
         {
-            if (model.Nights <= 0)
-                throw new ApplicationException("Nigts must be positive");
-            if (!_rentals.ContainsKey(model.RentalId))
-                throw new ApplicationException("Rental not found");
-
-            for (var i = 0; i < model.Nights; i++)
+            return ProcessRequest(() =>
             {
-                var count = 0;
-                foreach (var booking in _bookings.Values)
+                // validation
+
+                var result = _bookingsService.Add(model);
+
+                if (result.Status == ResponseStatus.UpdateConflict)
                 {
-                    if (booking.RentalId == model.RentalId
-                        && (booking.Start <= model.Start.Date && booking.Start.AddDays(booking.Nights) > model.Start.Date)
-                        || (booking.Start < model.Start.AddDays(model.Nights) && booking.Start.AddDays(booking.Nights) >= model.Start.AddDays(model.Nights))
-                        || (booking.Start > model.Start && booking.Start.AddDays(booking.Nights) < model.Start.AddDays(model.Nights)))
-                    {
-                        count++;
-                    }
+                    return Conflict();
                 }
-                if (count >= _rentals[model.RentalId].Units)
-                    throw new ApplicationException("Not available");
-            }
 
-
-            var key = new ResourceIdViewModel { Id = _bookings.Keys.Count + 1 };
-
-            _bookings.Add(key.Id, new BookingViewModel
-            {
-                Id = key.Id,
-                Nights = model.Nights,
-                RentalId = model.RentalId,
-                Start = model.Start.Date
+                return CreatedAtAction(nameof(Get), new { bookingId = result.Result.Id }, result.Result);
             });
-
-            return key;
         }
+
+        #endregion
     }
 }

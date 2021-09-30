@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using VacationRental.Data;
-using VacationRental.Data.Entities;
-using VacationRental.Services.Interface;
+using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface.Models;
+using VacationRental.Dal.InMemory;
 
 namespace VacationRental.Services
 {
@@ -28,8 +27,6 @@ namespace VacationRental.Services
 
         public static IServiceCollection ConfigureServiceDependencies(this IServiceCollection services)
         {
-            services.AddTransient<IRentalsService, RentalsService>();
-
             services.AddAutoMapper(autoMapperConfig, typeof(Profile).Assembly);
 
             services.ConfigureDataDependencies();

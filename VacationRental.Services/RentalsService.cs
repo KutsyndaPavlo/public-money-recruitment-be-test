@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using System;
 using System.Linq;
-using VacationRental.Data.Entities;
-using VacationRental.Data.Repositiries;
+using VacationRental.Dal.Interface;
+using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
 

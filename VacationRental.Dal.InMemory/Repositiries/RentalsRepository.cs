@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using VacationRental.Dal.Interface;
+using VacationRental.Dal.Interface.Entities;
 
 namespace VacationRental.Dal.InMemory.Repositiries
 {
-    public class RentalsRepository : VacationRental.Dal.Interface.IRentalsRepository
+    public class RentalsRepository : IRentalsRepository
     {
         #region Fieelds
 

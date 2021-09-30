@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using VacationRental.Dal.InMemory.Repositiries;
+using VacationRental.Dal.Interface;
 
 namespace VacationRental.Dal.InMemory
 {

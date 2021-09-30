@@ -1,7 +1,6 @@
-﻿using AutoMapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using VacationRental.Data.Repositiries;
+using VacationRental.Dal.Interface;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
 
@@ -10,14 +9,10 @@ namespace VacationRental.Services
     public class CalendarService : ICalendarService
     {
         private readonly IBookingsRepository _bookingsRepository;
-        private readonly IRentalsRepository _rentalsRepository;
-        private readonly IMapper _mapper;
 
-        public CalendarService(IBookingsRepository bookingsRepository, IRentalsRepository rentalsRepository, IMapper mapper)
+        public CalendarService(IBookingsRepository bookingsRepository)
         {
             _bookingsRepository = bookingsRepository;
-            _rentalsRepository = rentalsRepository;
-            _mapper = mapper;
         }
         public ServiceResponse<CalendarViewModel> Get(int rentalId, DateTime start, int nights)
         {

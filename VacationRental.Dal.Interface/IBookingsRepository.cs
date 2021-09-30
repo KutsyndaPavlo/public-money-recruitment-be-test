@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using VacationRental.Data.Entities;
+using VacationRental.Dal.Interface.Entities;
 
-namespace VacationRental.Data.Repositiries
+namespace VacationRental.Dal.Interface
 {
     public interface IBookingsRepository
     {
@@ -12,7 +12,5 @@ namespace VacationRental.Data.Repositiries
         IEnumerable<BookingEntity> GetBookings(int rentalId, DateTime? start = null, DateTime? end = null);
 
         BookingEntity Update(BookingEntity rentalEntityCreate);
-
-
     }
 }

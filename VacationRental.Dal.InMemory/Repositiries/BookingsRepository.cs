@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using VacationRental.Dal.Interface;
+using VacationRental.Dal.Interface.Entities;
 
 namespace VacationRental.Dal.InMemory.Repositiries
 {

@@ -1,6 +1,6 @@
-﻿using VacationRental.Data.Entities;
+﻿using VacationRental.Dal.Interface.Entities;
 
-namespace VacationRental.Data.Repositiries
+namespace VacationRental.Dal.Interface
 {
     public interface IRentalsRepository
     {

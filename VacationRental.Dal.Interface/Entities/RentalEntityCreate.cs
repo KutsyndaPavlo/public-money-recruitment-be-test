@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace VacationRental.Data.Entities
+namespace VacationRental.Dal.Interface.Entities
 {
     public class RentalEntityCreate
     {

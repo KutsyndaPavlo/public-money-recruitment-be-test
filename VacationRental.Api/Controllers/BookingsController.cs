@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
@@ -35,14 +36,14 @@ namespace VacationRental.Api.Controllers
 
         [HttpGet]
         [Route("{bookingId:int}")]
-        [SwaggerOperation(Tags = new[] { "Get booking by id" })]
+        [SwaggerOperation(Tags = new[] { "GetAsync booking by id" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The booking", typeof(BookingViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Booking not found", typeof(string))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
-        public IActionResult Get(int bookingId)
+        public async Task<IActionResult> Get(int bookingId)
         {
-            return ProcessRequest(() =>
+            return await ProcessRequestAsync(async () =>
             {
                 var request = new GetBookingRequest { BookingId = bookingId };
 
@@ -52,7 +53,7 @@ namespace VacationRental.Api.Controllers
                     return BadRequest(validationResult.Result);
                 }
 
-                var result = _bookingsService.Get(request);
+                var result = await _bookingsService.GetAsync(request);
                 if (result.Status == ResponseStatus.NotFound)
                 {
                     return NotFound(BookingNotFoundErrorMessage);
@@ -68,17 +69,17 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during adding a booking")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
-        public IActionResult Post(BookingBindingModel request)
+        public async Task<IActionResult> Post(BookingBindingModel request)
         {
-            return ProcessRequest(() =>
+            return await ProcessRequestAsync(async () =>
             {
-                var validationResult = _bookingValidatinService.ValidatePostRequest(request);
+                var validationResult = await _bookingValidatinService.ValidatePostRequestAsync(request);
                 if (validationResult.Status == ResponseStatus.ValidationFailed)
                 {
                     return BadRequest(validationResult.Result);
                 }
 
-                var result = _bookingsService.Add(request);
+                var result = await _bookingsService.AddAsync(request);
                 if (result.Status == ResponseStatus.UpdateConflict)
                 {
                     return Conflict();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
@@ -14,15 +15,14 @@ namespace VacationRental.Services
         {
             _bookingsRepository = bookingsRepository;
         }
-        public ServiceResponse<CalendarViewModel> Get(GetCalendarRequest request)
+        public async Task<ServiceResponse<CalendarViewModel>> GetAsync(GetCalendarRequest request)
         {
-            var bookings = _bookingsRepository.GetBookings(request.RentalId, request.StartDate, request.StartDate.AddDays(request.Nights));
+            var bookings = await _bookingsRepository.GetBookingsAsync(request.RentalId, request.StartDate, request.StartDate.AddDays(request.Nights));
 
             var result = new CalendarViewModel
             {
                 RentalId = request.RentalId,
-                Dates = new List<CalendarDateViewModel>(),
-                
+                Dates = new List<CalendarDateViewModel>()
             };
 
             for (var i = 0; i < request.Nights; i++)
@@ -52,10 +52,6 @@ namespace VacationRental.Services
             }
 
             return new ServiceResponse<CalendarViewModel> { Result = result, Status = ResponseStatus.Success };
-
-            //{ Dates:[ { Date: “2031 - 01 - 01”, Bookings:[ { Id: 2, Unit: 1 } ], PreparationTimes:[] }, 
-            //          { Date: “2031 - 01 - 02”, Bookings:[ { Id: 2, Unit: 1 } ], PreparationTimes:[] }, 
-            //          { Date: “2031 - 01 - 03”, Bookings:[], PreparationTimes:[ { Unit: 1 } ] } ] }
         }
     }
 }

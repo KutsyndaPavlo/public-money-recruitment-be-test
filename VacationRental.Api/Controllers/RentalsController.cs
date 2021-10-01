@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
@@ -35,14 +36,14 @@ namespace VacationRental.Api.Controllers
 
         [HttpGet]
         [Route("{rentalId:int}")]
-        [SwaggerOperation(Tags = new[] { "Get rental by id" })]
+        [SwaggerOperation(Tags = new[] { "GetAsync rental by id" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The rental", typeof(RentalViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Rental not found", typeof(string))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
-        public IActionResult Get(int rentalId)
+        public async Task<IActionResult> Get(int rentalId)
         {
-            return ProcessRequest(() =>
+            return await ProcessRequestAsync(async () =>
             {
                 var request = new GetRentalRequest
                 {
@@ -55,7 +56,7 @@ namespace VacationRental.Api.Controllers
                     return BadRequest(validationResult.Result);
                 }
 
-                var result = _rentalsService.GetById(request);
+                var result = await _rentalsService.GetByIdAsync(request);
                 if (result.Status == ResponseStatus.NotFound)
                 {
                     return NotFound(RentalNotFoundMessage);
@@ -70,9 +71,9 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "The created rental id", typeof(ResourceIdViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
-        public IActionResult Post(RentalBindingModel request)
+        public async Task<IActionResult> Post(RentalBindingModel request)
         {
-            return ProcessRequest(() =>
+            return await ProcessRequestAsync(async () =>
             {
                 var validationResult = _rentalValidationService.ValidatePostRequest(request);
                 if (validationResult.Status == ResponseStatus.ValidationFailed)
@@ -80,7 +81,7 @@ namespace VacationRental.Api.Controllers
                     return BadRequest(validationResult.Result);
                 }
 
-                var result = _rentalsService.Add(request);
+                var result =  await _rentalsService.AddAsync(request);
 
                 return CreatedAtAction(nameof(Get), new { rentalId = result.Result.Id }, result.Result);
             });
@@ -88,15 +89,15 @@ namespace VacationRental.Api.Controllers
 
         [HttpPut]
         [Route("{rentalId:int}")]
-        [SwaggerOperation(Tags = new[] { "Update rental" })]
+        [SwaggerOperation(Tags = new[] { "UpdateAsync rental" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The updated rental", typeof(ResourceIdViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Rental not found", typeof(string))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during rental updating")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
-        public IActionResult Put(int rentalId, [FromBody] RentalBindingModel model)
+        public async Task<IActionResult> Put(int rentalId, [FromBody] RentalBindingModel model)
         {
-            return ProcessRequest(() =>
+            return await ProcessRequestAsync(async () =>
             {
                 var request = new PutRentalRequest
                 {
@@ -111,7 +112,7 @@ namespace VacationRental.Api.Controllers
                     return BadRequest(validationResult.Result);
                 }
 
-                var result = _rentalsService.Update(request);
+                var result = await _rentalsService.UpdateAsync(request);
 
                 switch (result.Status) 
                 {

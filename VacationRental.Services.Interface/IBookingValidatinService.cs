@@ -1,4 +1,5 @@
-﻿using VacationRental.Services.Interface.Models;
+﻿using System.Threading.Tasks;
+using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Services.Interface
 {
@@ -6,6 +7,6 @@ namespace VacationRental.Services.Interface
     {
         ServiceResponse<string> ValidateGetRequest(GetBookingRequest request);
 
-        ServiceResponse<string> ValidatePostRequest(BookingBindingModel model);
+        Task<ServiceResponse<string>> ValidatePostRequestAsync(BookingBindingModel request);
     }
 }

@@ -1,4 +1,5 @@
-﻿using VacationRental.Dal.Interface;
+﻿using System.Threading.Tasks;
+using VacationRental.Dal.Interface;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
 
@@ -36,14 +37,14 @@ namespace VacationRental.Services
             return new ServiceResponse<string> { Status = ResponseStatus.Success };
         }
 
-        public ServiceResponse<string> ValidatePostRequest(BookingBindingModel request)
+        public async Task<ServiceResponse<string>> ValidatePostRequestAsync(BookingBindingModel request)
         {
             if (request.Nights <= 0)
             {
                 return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = incorrectNightsErrorMessage };
             }
 
-            if (_rentalRepository.GetById(request.RentalId) == null)
+            if (await _rentalRepository.GetByIdAsync(request.RentalId) == null)
             {
                 return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = rentalNotFoundErrorMessage };
             }

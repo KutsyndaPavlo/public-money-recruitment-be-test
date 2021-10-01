@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace VacationRental.Api.Controllers
 {
@@ -25,11 +26,11 @@ namespace VacationRental.Api.Controllers
 
         #region Methods
 
-        protected IActionResult ProcessRequest(Func<IActionResult> func) 
+        protected async Task<IActionResult> ProcessRequestAsync(Func<Task<IActionResult>> func) 
         {
             try
             {
-                return func();
+                return await func();
             }
             catch (Exception exception)
             {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
+using System.Threading.Tasks;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
 
@@ -34,13 +35,13 @@ namespace VacationRental.Api.Controllers
         #region Methods
 
         [HttpGet]
-        [SwaggerOperation(Tags = new[] { "Get calendar" })]
+        [SwaggerOperation(Tags = new[] { "GetAsync calendar" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The calendar", typeof(BookingViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
-        public IActionResult Get(int rentalId, DateTime start, int nights)
+        public async Task<IActionResult> Get(int rentalId, DateTime start, int nights)
         {
-            return ProcessRequest(() =>
+            return await ProcessRequestAsync(async () =>
             {
                 var request = new GetCalendarRequest
                 {
@@ -49,14 +50,14 @@ namespace VacationRental.Api.Controllers
                     Nights = nights
                 };
 
-                var validationResult = _calendarValidationService.ValidateGetRequest(request);
+                var validationResult = await _calendarValidationService.ValidateGetRequestAsync(request);
 
                 if (validationResult.Status == ResponseStatus.ValidationFailed)
                 {
                     return BadRequest(validationResult.Result);
                 }
 
-                var result = _calendarService.Get(request);
+                var result = await _calendarService.GetAsync(request);
 
                 return Ok(result.Result);
             });

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using System.Linq;
+using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
@@ -19,19 +20,19 @@ namespace VacationRental.Services
             _rentalsRepository = rentalsRepository;
             _mapper = mapper;
         }
-        public ServiceResponse<BookingViewModel> Get(GetBookingRequest request)
+        public async Task<ServiceResponse<BookingViewModel>> GetAsync(GetBookingRequest request)
         {
-            return new ServiceResponse<BookingViewModel> { Result = _mapper.Map<BookingViewModel>(_bookingsRepository.GetById(request.BookingId)), Status = ResponseStatus.Success };
+            return new ServiceResponse<BookingViewModel> { Result = _mapper.Map<BookingViewModel>(await _bookingsRepository.GetByIdAsync(request.BookingId)), Status = ResponseStatus.Success };
         }
 
-        public ServiceResponse<ResourceIdViewModel> Add(BookingBindingModel rentalEntityCreate) 
+        public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(BookingBindingModel rentalEntityCreate) 
         {
-            var rentals = _rentalsRepository.GetById(rentalEntityCreate.RentalId);
+            var rentals = await _rentalsRepository.GetByIdAsync(rentalEntityCreate.RentalId);
 
 
-            var bookings = _bookingsRepository.GetBookings(rentalEntityCreate.RentalId,
+            var bookings = await _bookingsRepository.GetBookingsAsync(rentalEntityCreate.RentalId,
                                             rentalEntityCreate.Start,
-                                            rentalEntityCreate.Start.AddDays(rentalEntityCreate.Nights + rentals.PreparationTimeInDays - 1)).ToList();
+                                            rentalEntityCreate.Start.AddDays(rentalEntityCreate.Nights + rentals.PreparationTimeInDays - 1));
 
 
 
@@ -43,7 +44,7 @@ namespace VacationRental.Services
                 var mapu = _mapper.Map<BookingEntityCreate>(rentalEntityCreate);
                 mapu.UnitId = unitId;
                 mapu.PreparationTime = rentals.PreparationTimeInDays;
-                return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(_bookingsRepository.Add(mapu)), Status = ResponseStatus.Success };
+                return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(await _bookingsRepository.AddAsync(mapu)), Status = ResponseStatus.Success };
             }
 
             return null;

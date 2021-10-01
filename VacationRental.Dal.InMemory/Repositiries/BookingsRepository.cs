@@ -2,31 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using VacationRental.Dal.Interface;
 using VacationRental.Dal.Interface.Entities;
 
-namespace VacationRental.Dal.InMemory.Repositiries
+namespace VacationRental.Dal.InMemory.Repositories
 {
     public class BookingsRepository : IBookingsRepository
     {
-        private int counter = 0;
-        private readonly IDictionary<int, BookingEntity> _bookings = new Dictionary<int, BookingEntity>();
+        private readonly VacationRentalDbContext _dbContext;
 
-        public BookingEntity GetById(int id)
+        #region Constructor
+
+        public BookingsRepository(VacationRentalDbContext dbContext)
         {
-            if (!_bookings.ContainsKey(id))
-            {
-                return null;
-            }
-
-            return _bookings[id];
+            _dbContext = dbContext;
         }
 
-        public BookingEntity Add(BookingEntityCreate rentalEntityCreate)
+        #endregion
+
+        public async Task<BookingEntity> GetByIdAsync(int id)
+        {
+            return await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<BookingEntity> AddAsync(BookingEntityCreate rentalEntityCreate)
         {
             var booking = new BookingEntity
             {
-                Id = Interlocked.Increment(ref counter),
+                //Id = Interlocked.Increment(ref counter),
                 BookingNights = rentalEntityCreate.Nights,
                 RentalId = rentalEntityCreate.RentalId,
                 UnitId = rentalEntityCreate.UnitId,
@@ -36,28 +41,30 @@ namespace VacationRental.Dal.InMemory.Repositiries
                 PreparationEnd = rentalEntityCreate.Start.AddDays(rentalEntityCreate.Nights).AddDays(rentalEntityCreate.PreparationTime - 1)
             };
 
-            _bookings.Add(booking.Id, booking);
+            await _dbContext.Bookings.AddAsync(booking);
+            await _dbContext.SaveChangesAsync();
 
             return booking;
         }
 
-        public IEnumerable<BookingEntity> GetBookings(int rentalId, DateTime? start = null, DateTime? end = null)
+        public async Task<IEnumerable<BookingEntity>> GetBookingsAsync(int rentalId, DateTime? start = null, DateTime? end = null)
         {
             if (start.HasValue && end.HasValue)
             {
-                return _bookings.Values.Where(x => x.RentalId == rentalId && x.PreparationEnd >= start && x.BookingStart <= end);
+                return _dbContext.Bookings.Where(x => x.RentalId == rentalId && x.PreparationEnd >= start && x.BookingStart <= end);
             }
 
 
-            return _bookings.Values.Where(x => x.RentalId == rentalId && x.PreparationEnd >= end && x.PreparationStart >= end);
+            return _dbContext.Bookings.Where(x => x.RentalId == rentalId && x.PreparationEnd >= end && x.PreparationStart >= end);
 
         }
 
-        public BookingEntity Update(BookingEntity rentalEntityCreate)
+        public async Task<BookingEntity> UpdateAsync(BookingEntity rentalEntityCreate)
         {
-            _bookings[rentalEntityCreate.Id].PreparationEnd = rentalEntityCreate.PreparationEnd;
-
-            return _bookings[rentalEntityCreate.Id];
+            var resu = await _dbContext.Bookings.FirstOrDefaultAsync(x=>x.Id == rentalEntityCreate.Id);
+            resu.PreparationEnd = rentalEntityCreate.PreparationEnd;
+            await _dbContext.SaveChangesAsync();
+            return resu;
         }
     }
 }

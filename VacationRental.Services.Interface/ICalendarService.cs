@@ -1,10 +1,10 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Services.Interface
 {
     public interface ICalendarService
     {
-        ServiceResponse<CalendarViewModel> Get(GetCalendarRequest request);
+        Task<ServiceResponse<CalendarViewModel>> GetAsync(GetCalendarRequest request);
     }
 }

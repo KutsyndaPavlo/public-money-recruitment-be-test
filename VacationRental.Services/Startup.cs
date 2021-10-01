@@ -4,6 +4,7 @@ using System;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface.Models;
 using VacationRental.Dal.InMemory;
+using VacationRental.Services.Interface;
 
 namespace VacationRental.Services
 {
@@ -30,7 +31,14 @@ namespace VacationRental.Services
         {
             services.AddAutoMapper(autoMapperConfig, typeof(Profile).Assembly);
 
-            services.ConfigureDataDependencies();
+            services.AddScoped<IRentalsService, RentalsService>();
+            services.AddScoped<IBookingsService, BookingsService>();
+            services.AddScoped<ICalendarService, CalendarService>();
+            services.AddScoped<IBookingValidatinService, BookingValidationService>();
+            services.AddScoped<IRentalValidationService, RentalValidationService>();
+            services.AddScoped<ICalendarValidationService, CalendarValidationService>();
+
+            services.ConfigureInMemoryDataDependencies();
 
             return services;
         }

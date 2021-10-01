@@ -107,7 +107,7 @@ namespace IntegrationTests.Steps
         //[Then(@"the update result should be (.*) and units (.*) and preparation time (.*)")]
         //public async Task ThenTheUpdateResultShouldBeAndUnitsAndPreparationTime(int statusCode, int units, int preparationTime)
         //{
-        //    var responseMessage = _context.Get<HttpResponseMessage>("rental_get_response");
+        //    var responseMessage = _context.GetAsync<HttpResponseMessage>("rental_get_response");
 
         //    Assert.That(responseMessage, Is.Not.Null);
 

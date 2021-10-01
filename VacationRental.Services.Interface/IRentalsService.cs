@@ -1,13 +1,14 @@
-﻿using VacationRental.Services.Interface.Models;
+﻿using System.Threading.Tasks;
+using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Services.Interface
 {
     public interface IRentalsService
     {
-        ServiceResponse<ResourceIdViewModel> Add(RentalBindingModel request);
+        Task<ServiceResponse<ResourceIdViewModel>> AddAsync(RentalBindingModel request);
 
-        ServiceResponse<RentalViewModel> GetById(GetRentalRequest request);
+        Task<ServiceResponse<RentalViewModel>> GetByIdAsync(GetRentalRequest request);
 
-        ServiceResponse<ResourceIdViewModel> Update(PutRentalRequest request);
+        Task<ServiceResponse<ResourceIdViewModel>> UpdateAsync(PutRentalRequest request);
     }
 }

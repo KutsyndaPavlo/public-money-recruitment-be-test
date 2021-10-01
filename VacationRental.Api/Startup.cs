@@ -24,14 +24,7 @@ namespace VacationRental.Api
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddSwaggerGen(opts => opts.SwaggerDoc("v1", new Info { Title = "Vacation rental information", Version = "v1" }));
-
-            services.AddSingleton<IRentalsService, RentalsService>();
-            services.AddSingleton<IBookingsService, BookingsService>();
-            services.AddSingleton<ICalendarService, CalendarService>();
-            services.AddSingleton<IBookingValidatinService, BookingValidationService>();
-            services.AddSingleton<IRentalValidationService, RentalValidationService>();
-            services.AddSingleton<ICalendarValidationService, CalendarValidationService>();
-
+            
             services.ConfigureServiceDependencies();
         }
 

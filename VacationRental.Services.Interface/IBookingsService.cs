@@ -1,11 +1,12 @@
-﻿using VacationRental.Services.Interface.Models;
+﻿using System.Threading.Tasks;
+using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Services.Interface
 {
     public interface IBookingsService
     {
-        ServiceResponse<BookingViewModel> Get(GetBookingRequest request);
+        Task<ServiceResponse<BookingViewModel>> GetAsync(GetBookingRequest request);
 
-        ServiceResponse<ResourceIdViewModel> Add(BookingBindingModel request);
+        Task<ServiceResponse<ResourceIdViewModel>> AddAsync(BookingBindingModel request);
     }
 }

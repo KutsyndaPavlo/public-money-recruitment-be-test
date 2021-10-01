@@ -1,9 +1,10 @@
-﻿using VacationRental.Services.Interface.Models;
+﻿using System.Threading.Tasks;
+using VacationRental.Services.Interface.Models;
 
 namespace VacationRental.Services.Interface
 {
     public interface ICalendarValidationService
     {
-        ServiceResponse<string> ValidateGetRequest(GetCalendarRequest requestData);
+        Task<ServiceResponse<string>> ValidateGetRequestAsync(GetCalendarRequest request);
     }
 }

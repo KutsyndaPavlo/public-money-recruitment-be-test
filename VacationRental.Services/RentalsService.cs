@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
@@ -33,9 +34,9 @@ namespace VacationRental.Services
 
         #region Public methods
 
-        public ServiceResponse<RentalViewModel> GetById(GetRentalRequest request)
+        public async Task<ServiceResponse<RentalViewModel>> GetByIdAsync(GetRentalRequest request)
         {
-            var result = _rentalsRepository.GetById(request.RentalId);
+            var result = await _rentalsRepository.GetByIdAsync(request.RentalId);
 
             if (result == null)
             {
@@ -48,18 +49,18 @@ namespace VacationRental.Services
             return new ServiceResponse<RentalViewModel>
             {
                 Status = ResponseStatus.Success,
-                Result = _mapper.Map<RentalViewModel>(_rentalsRepository.GetById(request.RentalId))
+                Result = _mapper.Map<RentalViewModel>(await _rentalsRepository.GetByIdAsync(request.RentalId))
             };
         }
 
-        public ServiceResponse<ResourceIdViewModel> Add(RentalBindingModel units)
+        public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(RentalBindingModel units)
         {
-            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(_rentalsRepository.Add(_mapper.Map<RentalEntityCreate>(units))), Status = ResponseStatus.Success }; ;
+            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(await _rentalsRepository.AddAsync(_mapper.Map<RentalEntityCreate>(units))), Status = ResponseStatus.Success }; ;
         }
 
-        public ServiceResponse<ResourceIdViewModel> Update(PutRentalRequest request)
+        public async Task<ServiceResponse<ResourceIdViewModel>> UpdateAsync(PutRentalRequest request)
         {
-            var rental = _rentalsRepository.GetById(request.RentalId);
+            var rental = await _rentalsRepository.GetByIdAsync(request.RentalId);
 
             if (rental == null)
             {
@@ -69,7 +70,7 @@ namespace VacationRental.Services
                     Status = ResponseStatus.NotFound
                 };
             }
-            var bookings = _bookingsRepository.GetBookings(rental.Id, default(DateTime?), DateTime.Now).ToList();
+            var bookings = await _bookingsRepository.GetBookingsAsync(rental.Id, default(DateTime?), DateTime.Now);
 
 
             if (request.Units < rental.Units)
@@ -109,10 +110,10 @@ namespace VacationRental.Services
             foreach (var tt in bookings)
             {
 
-                _bookingsRepository.Update(tt);
+                await _bookingsRepository.UpdateAsync(tt);
 
             }
-            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(_rentalsRepository.Update(rr)), Status = ResponseStatus.Success };
+            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(await _rentalsRepository.UpdateAsync(rr)), Status = ResponseStatus.Success };
 
         }
 

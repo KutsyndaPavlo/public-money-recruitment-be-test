@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using VacationRental.Dal.Interface.Entities;
 
 namespace VacationRental.Dal.Interface
 {
     public interface IBookingsRepository
     {
-        BookingEntity GetById(int id);
+        Task<BookingEntity> GetByIdAsync(int id);
 
-        BookingEntity Add(BookingEntityCreate rentalEntityCreate);
-        IEnumerable<BookingEntity> GetBookings(int rentalId, DateTime? start = null, DateTime? end = null);
+        Task<BookingEntity> AddAsync(BookingEntityCreate rentalEntityCreate);
 
-        BookingEntity Update(BookingEntity rentalEntityCreate);
+        Task<IEnumerable<BookingEntity>> GetBookingsAsync(int rentalId, DateTime? start = null, DateTime? end = null);
+
+        Task<BookingEntity> UpdateAsync(BookingEntity rentalEntityCreate);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ namespace VacationRental.Api.Controllers
 {
     [Route("api/v1/calendar")]
     [ApiController]
-    public class CalendarController : VacationRentalController
+    public class CalendarController : ControllerBase
     {
         #region Fields
 
@@ -24,8 +23,7 @@ namespace VacationRental.Api.Controllers
         #region Constructor
 
         public CalendarController(ICalendarService calendarService,
-                                  ICalendarValidationService calendarValidationService,
-                                  ILogger<VacationRentalController> logger) : base(logger)
+                                  ICalendarValidationService calendarValidationService)
         {
             _calendarService = calendarService;
             _calendarValidationService = calendarValidationService;
@@ -42,26 +40,23 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Get(int rentalId, DateTime start, int nights)
         {
-            return await ProcessRequestAsync(async () =>
+            var request = new GetCalendarRequest
             {
-                var request = new GetCalendarRequest
-                {
-                    RentalId = rentalId,
-                    StartDate = start,
-                    Nights = nights
-                };
+                RentalId = rentalId,
+                StartDate = start,
+                Nights = nights
+            };
 
-                var validationResult = await _calendarValidationService.ValidateGetRequestAsync(request);
+            var validationResult = await _calendarValidationService.ValidateGetRequestAsync(request);
 
-                if (validationResult.Status == ResponseStatus.ValidationFailed)
-                {
-                    return BadRequest(validationResult.Result);
-                }
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
+            {
+                return BadRequest(validationResult.Result);
+            }
 
-                var result = await _calendarService.GetAsync(request);
+            var result = await _calendarService.GetAsync(request);
 
-                return Ok(result.Result);
-            });
+            return Ok(result.Result);
         }
 
         #endregion

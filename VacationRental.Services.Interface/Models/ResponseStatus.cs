@@ -3,8 +3,9 @@
     public enum ResponseStatus
     {
         Success,
-        NotFound,
-        UpdateConflict,
+        RentalNotFound,
+        BookingNotFound,
+        Conflict,
         ValidationFailed
     }
 }

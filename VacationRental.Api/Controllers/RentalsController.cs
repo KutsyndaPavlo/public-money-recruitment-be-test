@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading.Tasks;
+using VacationRental.Services.Constants;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
 using VacationRental.Services.Interface.Validation;
@@ -11,21 +12,19 @@ namespace VacationRental.Api.Controllers
 {
     [Route("api/v1/rentals")]
     [ApiController]
-    public class RentalsController : VacationRentalController
+    public class RentalsController : ControllerBase
     {
         #region Fields
 
         private readonly IRentalsService _rentalsService;
         private readonly IRentalValidationService _rentalValidationService;
-        private const string RentalNotFoundMessage = "Rental not found";
 
         #endregion
 
         #region Constructor
 
         public RentalsController(IRentalsService rentalsService,
-                                 IRentalValidationService rentalValidationService,
-                                 ILogger<VacationRentalController> logger) : base(logger)
+                                 IRentalValidationService rentalValidationService)
         {
             _rentalsService = rentalsService;
             _rentalValidationService = rentalValidationService;
@@ -44,27 +43,24 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Get(int rentalId)
         {
-            return await ProcessRequestAsync(async () =>
+            var request = new GetRentalRequest
             {
-                var request = new GetRentalRequest
-                {
-                    RentalId = rentalId
-                };
+                RentalId = rentalId
+            };
 
-                var validationResult = _rentalValidationService.ValidateGetRequest(request);
-                if (validationResult.Status == ResponseStatus.ValidationFailed)
-                {
-                    return BadRequest(validationResult.Result);
-                }
+            var validationResult = _rentalValidationService.ValidateGetRequest(request);
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
+            {
+                return BadRequest(validationResult.Result);
+            }
 
-                var result = await _rentalsService.GetByIdAsync(request);
-                if (result.Status == ResponseStatus.NotFound)
-                {
-                    return NotFound(RentalNotFoundMessage);
-                }
+            var result = await _rentalsService.GetByIdAsync(request);
+            if (result.Status == ResponseStatus.RentalNotFound)
+            {
+                return NotFound(VacationRentalConstants.RentalNotFoundErrorMessage);
+            }
 
-                return Ok(result.Result);
-            });
+            return Ok(result.Result);
         }
 
         [HttpPost]
@@ -74,18 +70,15 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Post(RentalBindingModel request)
         {
-            return await ProcessRequestAsync(async () =>
+            var validationResult = _rentalValidationService.ValidatePostRequest(request);
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
             {
-                var validationResult = _rentalValidationService.ValidatePostRequest(request);
-                if (validationResult.Status == ResponseStatus.ValidationFailed)
-                {
-                    return BadRequest(validationResult.Result);
-                }
+                return BadRequest(validationResult.Result);
+            }
 
-                var result =  await _rentalsService.AddAsync(request);
+            var result = await _rentalsService.AddAsync(request);
 
-                return CreatedAtAction(nameof(Get), new { rentalId = result.Result.Id }, result.Result);
-            });
+            return CreatedAtAction(nameof(Get), new { rentalId = result.Result.Id }, result.Result);
         }
 
         [HttpPut]
@@ -98,33 +91,30 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Put(int rentalId, [FromBody] RentalBindingModel model)
         {
-            return await ProcessRequestAsync(async () =>
+            var request = new PutRentalRequest
             {
-                var request = new PutRentalRequest
-                {
-                    RentalId = rentalId,
-                    Units = model.Units,
-                    PreparationTimeInDays = model.PreparationTimeInDays
-                };
+                RentalId = rentalId,
+                Units = model.Units,
+                PreparationTimeInDays = model.PreparationTimeInDays
+            };
 
-                var validationResult = _rentalValidationService.ValidatePutRequest(request);
-                if (validationResult.Status == ResponseStatus.ValidationFailed)
-                {
-                    return BadRequest(validationResult.Result);
-                }
+            var validationResult = _rentalValidationService.ValidatePutRequest(request);
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
+            {
+                return BadRequest(validationResult.Result);
+            }
 
-                var result = await _rentalsService.UpdateAsync(request);
+            var result = await _rentalsService.UpdateAsync(request);
 
-                switch (result.Status) 
-                {
-                    case ResponseStatus.NotFound:
-                        return NotFound();
-                    case ResponseStatus.UpdateConflict:
-                        return Conflict();
-                    default:
-                        return Ok(result.Result);
-                }
-            }); 
+            switch (result.Status)
+            {
+                case ResponseStatus.RentalNotFound:
+                    return NotFound(VacationRentalConstants.RentalNotFoundErrorMessage);
+                case ResponseStatus.Conflict:
+                    return Conflict(VacationRentalConstants.RentalUpdatingConflictErrorMessage);
+                default:
+                    return Ok(result.Result);
+            }
         }
 
         #endregion

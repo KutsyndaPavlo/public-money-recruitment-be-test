@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading.Tasks;
+using VacationRental.Services.Constants;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
 using VacationRental.Services.Interface.Validation;
@@ -11,21 +11,19 @@ namespace VacationRental.Api.Controllers
 {
     [Route("api/v1/bookings")]
     [ApiController]
-    public class BookingsController : VacationRentalController
+    public class BookingsController : ControllerBase
     {
         #region Fields 
 
         private readonly IBookingsService _bookingsService;
         private readonly IBookingValidatinService _bookingValidatinService;
-        private const string BookingNotFoundErrorMessage = "Booking not found";
 
         #endregion
 
         #region Constructor
 
         public BookingsController(IBookingsService bookingsService,
-                                  IBookingValidatinService bookingValidatinService,
-                                  ILogger<VacationRentalController> logger) : base(logger)
+                                  IBookingValidatinService bookingValidatinService)
         {
             _bookingsService = bookingsService;
             _bookingValidatinService = bookingValidatinService;
@@ -44,50 +42,48 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Get(int bookingId)
         {
-            return await ProcessRequestAsync(async () =>
+            var request = new GetBookingRequest { BookingId = bookingId };
+
+            var validationResult = _bookingValidatinService.ValidateGetRequest(request);
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
             {
-                var request = new GetBookingRequest { BookingId = bookingId };
+                return BadRequest(validationResult.Result);
+            }
 
-                var validationResult = _bookingValidatinService.ValidateGetRequest(request);
-                if (validationResult.Status == ResponseStatus.ValidationFailed)
-                {
-                    return BadRequest(validationResult.Result);
-                }
+            var result = await _bookingsService.GetAsync(request);
+            if (result.Status == ResponseStatus.BookingNotFound)
+            {
+                return NotFound(VacationRentalConstants.BookingNotFoundErrorMessage);
+            }
 
-                var result = await _bookingsService.GetAsync(request);
-                if (result.Status == ResponseStatus.NotFound)
-                {
-                    return NotFound(BookingNotFoundErrorMessage);
-                }
-
-                return Ok(result.Result);
-            });
+            return Ok(result.Result);
         }
 
         [HttpPost]
-        [SwaggerOperation(Tags = new[] { "Create booking" })]
+        [SwaggerOperation(Tags = new[] { "Create a booking" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The created booking id", typeof(ResourceIdViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during adding a booking")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Post(BookingBindingModel request)
         {
-            return await ProcessRequestAsync(async () =>
+            var validationResult = _bookingValidatinService.ValidatePostRequest(request);
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
             {
-                var validationResult = await _bookingValidatinService.ValidatePostRequestAsync(request);
-                if (validationResult.Status == ResponseStatus.ValidationFailed)
-                {
-                    return BadRequest(validationResult.Result);
-                }
+                return BadRequest(validationResult.Result);
+            }
 
-                var result = await _bookingsService.AddAsync(request);
-                if (result.Status == ResponseStatus.UpdateConflict)
-                {
-                    return Conflict();
-                }
+            var result = await _bookingsService.AddAsync(request);
 
-                return CreatedAtAction(nameof(Get), new { bookingId = result.Result.Id }, result.Result);
-            });
+            switch (result.Status)
+            {
+                case ResponseStatus.RentalNotFound:
+                    return BadRequest(VacationRentalConstants.RentalNotFoundErrorMessage);
+                case ResponseStatus.Conflict:
+                    return Conflict(VacationRentalConstants.BookingAddingConflictErrorMessage);
+                default:
+                    return CreatedAtAction(nameof(Get), new { bookingId = result.Result.Id }, result.Result);
+            }
         }
 
         #endregion

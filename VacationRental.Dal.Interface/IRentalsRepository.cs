@@ -7,8 +7,8 @@ namespace VacationRental.Dal.Interface
     {
         Task<RentalEntity> GetByIdAsync(int id);
 
-        Task<RentalEntity> AddAsync(RentalEntityCreate rentalEntityCreate);
+        Task<RentalEntity> AddAsync(RentalEntityCreate rentalToCreate);
 
-        Task<RentalEntity> UpdateAsync(RentalEntity rentalEntity);
+        Task<RentalEntity> UpdateAsync(RentalEntity rentalToUpdate);
     }
 }

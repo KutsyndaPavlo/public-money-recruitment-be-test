@@ -9,7 +9,7 @@ namespace VacationRental.Dal.Interface
 
         IRentalsRepository RentalsRepository { get; }
 
-        Task CommitAsync();
+        Task<int> CommitAsync();
 
         Task RejectChangesAsync();
     }

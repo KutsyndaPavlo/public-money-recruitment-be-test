@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
+using VacationRental.Services.Constants;
 using VacationRental.Services.Interface.Models;
 using VacationRental.Services.Interface.Validation;
 
@@ -7,10 +8,8 @@ namespace VacationRental.Services.Validation
 {
     public class CalendarValidationService : ICalendarValidationService
     {
-        #region Fields
+        #region Fields 
 
-        private const string incorrectNightsErrorMessage = "Nigts must be positive";
-        private const string rentalNotFoundErrorMessage = "Rental not found";
         private readonly IUnitOfWork _unitOfWork;
 
         #endregion
@@ -30,12 +29,12 @@ namespace VacationRental.Services.Validation
         {
             if (await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId) == null)
             {
-                return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = rentalNotFoundErrorMessage };
+                return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = VacationRentalConstants.RentalNotFoundErrorMessage };
             }
 
             if (request.Nights <= 0)
             {
-                return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = incorrectNightsErrorMessage };
+                return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = VacationRentalConstants.IncorrectNightsErrorMessage };
             }
 
             return new ServiceResponse<string> { Status = ResponseStatus.Success };

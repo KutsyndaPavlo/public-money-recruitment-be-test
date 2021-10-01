@@ -16,6 +16,7 @@ namespace VacationRental.Dal.InMemory
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new RentalConfiguration());
+            modelBuilder.ApplyConfiguration(new BookingConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }

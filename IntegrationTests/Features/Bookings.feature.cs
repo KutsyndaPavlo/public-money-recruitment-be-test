@@ -155,7 +155,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("booking for \"2002-01-05\" for 6 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 14
- testRunner.Then("the result should be 500 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -200,7 +200,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("booking for \"2002-01-02\" for 4 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 20
- testRunner.Then("the result should be 500 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -245,7 +245,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("booking for \"2002-01-02\" for 3 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 26
- testRunner.Then("the result should be 500 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -294,7 +294,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("booking for \"2002-01-01\" for 8 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 34
- testRunner.Then("the result should be 500 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -339,7 +339,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("booking for \"2002-01-08\" for 6 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 40
- testRunner.Then("the result should be 500 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -384,7 +384,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("booking for \"2002-01-09\" for 6 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 46
- testRunner.Then("the result should be 500 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

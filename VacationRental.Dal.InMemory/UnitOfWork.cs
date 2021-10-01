@@ -24,9 +24,9 @@ namespace VacationRental.Dal.InMemory
 
         public IRentalsRepository RentalsRepository { get; }
 
-        public async Task CommitAsync()
+        public async Task<int> CommitAsync()
         {
-            await _dbContext.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync();
         }
 
         public async Task RejectChangesAsync()

@@ -39,7 +39,7 @@ namespace VacationRental.Services
             {
                 return new ServiceResponse<RentalViewModel>
                 {
-                    Status = ResponseStatus.NotFound
+                    Status = ResponseStatus.RentalNotFound
                 };
             }
 
@@ -66,10 +66,10 @@ namespace VacationRental.Services
 
                 return new ServiceResponse<ResourceIdViewModel>
                 {
-                    Status = ResponseStatus.NotFound
+                    Status = ResponseStatus.RentalNotFound
                 };
             }
-            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(rental.Id, default(DateTime?), DateTime.Now);
+            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(rental.Id, DateTime.Now.Date, DateTime.MaxValue.Date);
 
 
             if (request.Units < rental.Units)
@@ -106,12 +106,7 @@ namespace VacationRental.Services
             var rr = _mapper.Map<RentalEntity>(request);
             rr.Id = request.RentalId;
 
-            foreach (var tt in bookings)
-            {
-
-                await _unitOfWork.BookingsRepository.UpdateAsync(tt);
-
-            }
+            await _unitOfWork.BookingsRepository.BulkUpdateAsync(bookings);
 
             var res = await _unitOfWork.RentalsRepository.UpdateAsync(rr);
             await _unitOfWork.CommitAsync();

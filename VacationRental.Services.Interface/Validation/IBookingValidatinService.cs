@@ -7,6 +7,6 @@ namespace VacationRental.Services.Interface.Validation
     {
         ServiceResponse<string> ValidateGetRequest(GetBookingRequest request);
 
-        Task<ServiceResponse<string>> ValidatePostRequestAsync(BookingBindingModel request);
+        ServiceResponse<string> ValidatePostRequest(BookingBindingModel request);
     }
 }

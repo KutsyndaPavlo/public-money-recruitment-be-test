@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using System.Linq;
 using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
@@ -10,46 +11,104 @@ namespace VacationRental.Services
 {
     public class BookingsService : IBookingsService
     {
+        #region Fields
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly int _firstUnitId = 1;
+
+        #endregion
+
+        #region Constructor
 
         public BookingsService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
+        #endregion
+
+        #region Public Methods
+
         public async Task<ServiceResponse<BookingViewModel>> GetAsync(GetBookingRequest request)
         {
-            return new ServiceResponse<BookingViewModel> { Result = _mapper.Map<BookingViewModel>(await _unitOfWork.BookingsRepository.GetByIdAsync(request.BookingId)), Status = ResponseStatus.Success };
-        }
+            var result = await _unitOfWork.BookingsRepository.GetByIdAsync(request.BookingId);
 
-        public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(BookingBindingModel rentalEntityCreate) 
-        {
-            var rentals = await _unitOfWork.RentalsRepository.GetByIdAsync(rentalEntityCreate.RentalId);
-
-
-            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(rentalEntityCreate.RentalId,
-                                            rentalEntityCreate.Start,
-                                            rentalEntityCreate.Start.AddDays(rentalEntityCreate.Nights + rentals.PreparationTimeInDays - 1));
-
-
-
-            if (bookings.Count() < rentals.Units)
+            if (result == null)
             {
-
-                var unitId = Enumerable.Range(1, rentals.Units).Except(bookings.Select(x => x.UnitId)).First();
-
-                var mapu = _mapper.Map<BookingEntityCreate>(rentalEntityCreate);
-                mapu.UnitId = unitId;
-                mapu.PreparationTime = rentals.PreparationTimeInDays;
-
-                var ee = await _unitOfWork.BookingsRepository.AddAsync(mapu);
-                await _unitOfWork.CommitAsync();
-                return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(ee), Status = ResponseStatus.Success };
+                return new ServiceResponse<BookingViewModel>
+                {
+                    Status = ResponseStatus.BookingNotFound
+                };
             }
 
-            return null;
+            return new ServiceResponse<BookingViewModel>
+            {
+                Result = _mapper.Map<BookingViewModel>(result),
+                Status = ResponseStatus.Success
+            };
         }
 
+        public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(BookingBindingModel request)
+        {
+            var rental = await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId);
+
+            if (rental == null)
+            {
+                return new ServiceResponse<ResourceIdViewModel>
+                {
+                    Status = ResponseStatus.RentalNotFound
+                };
+            }
+
+            var availableUnits = await GetAvailableUnitsAsync(request, rental);
+
+            if (!availableUnits.Any())
+            {
+                return new ServiceResponse<ResourceIdViewModel>
+                {
+                    Status = ResponseStatus.Conflict
+                };
+            }
+
+            var createdBooking = await SaveBookingAsync(request, rental, availableUnits.First());
+
+            return new ServiceResponse<ResourceIdViewModel>
+            {
+                Result = _mapper.Map<ResourceIdViewModel>(createdBooking),
+                Status = ResponseStatus.Success
+            };
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private async Task<IEnumerable<int>> GetAvailableUnitsAsync(BookingBindingModel request, RentalEntity rental)
+        {
+            var overlappedBookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(
+                request.RentalId,
+                request.Start,
+                request.Start.AddDays(request.Nights + rental.PreparationTimeInDays - 1));
+
+            var unitsList = Enumerable.Range(_firstUnitId, rental.Units);
+            var bookedUnits = overlappedBookings.Select(x => x.UnitId);
+
+            return unitsList.Except(bookedUnits);
+        }
+
+        private async Task<BookingEntity> SaveBookingAsync(BookingBindingModel request, RentalEntity rental, int unit)
+        {
+            var bookingToCreate = _mapper.Map<BookingEntityCreate>(request);
+            bookingToCreate.UnitId = unit;
+            bookingToCreate.PreparationTime = rental.PreparationTimeInDays;
+
+            var createdBooking = await _unitOfWork.BookingsRepository.AddAsync(bookingToCreate);
+            await _unitOfWork.CommitAsync();
+            return createdBooking;
+        }
+
+        #endregion
     }
 }

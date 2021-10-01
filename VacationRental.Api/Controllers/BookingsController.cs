@@ -35,7 +35,7 @@ namespace VacationRental.Api.Controllers
 
         [HttpGet]
         [Route("{bookingId:int}")]
-        [SwaggerOperation(Tags = new[] { "GetAsync booking by id" })]
+        [SwaggerOperation(Tags = new[] { "Get booking by id" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The booking", typeof(BookingViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Booking not found", typeof(string))]

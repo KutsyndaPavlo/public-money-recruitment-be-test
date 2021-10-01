@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
+using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
 
@@ -9,49 +11,95 @@ namespace VacationRental.Services
 {
     public class CalendarService : ICalendarService
     {
+        #region Fields
+
         private readonly IUnitOfWork _unitOfWork;
+        private int currentNight = 0;
+
+        #endregion
+
+        #region Constructor
 
         public CalendarService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
+
+        #endregion
+
+        #region Methods
+
         public async Task<ServiceResponse<CalendarViewModel>> GetAsync(GetCalendarRequest request)
         {
-            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(request.RentalId, request.StartDate, request.StartDate.AddDays(request.Nights));
+            var rental = await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId);
 
+            if (rental == null)
+            {
+                return new ServiceResponse<CalendarViewModel>
+                {
+                    Status = ResponseStatus.RentalNotFound
+                };
+            }
+
+            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(request.RentalId,
+                                                                                                       request.StartDate,
+                                                                                                       request.StartDate.AddDays(request.Nights));
             var result = new CalendarViewModel
             {
                 RentalId = request.RentalId,
-                Dates = new List<CalendarDateViewModel>()
+                Dates = Enumerable.Range(currentNight, request.Nights)
+                                  .Select(nightNumber => GetCalendarDateViewModel(request.StartDate.Date.AddDays(nightNumber), bookings))
+                                  .ToList()
             };
 
-            for (var i = 0; i < request.Nights; i++)
+            return new ServiceResponse<CalendarViewModel>
             {
-                var date = new CalendarDateViewModel
-                {
-                    Date = request.StartDate.Date.AddDays(i),
-                    Bookings = new List<CalendarBookingViewModel>(),
-                    PreparationTimes = new List<CalendarPreparationTimeViewModel>()
-                };
+                Result = result,
+                Status = ResponseStatus.Success
+            };
+        }
 
-                foreach (var booking in bookings)
-                {
-                    if (booking.BookingStart <= date.Date && booking.BookingEnd >= date.Date)
-                    {
-                        date.Bookings.Add(new CalendarBookingViewModel { Id = booking.Id, Unit = booking.UnitId });
-                        continue;
-                    }
+        #endregion
 
-                    if (booking.PreparationStart <= date.Date && booking.PreparationEnd >= date.Date)
-                    {
-                        date.PreparationTimes.Add(new CalendarPreparationTimeViewModel { Unit = booking.UnitId });
-                    }
-                }
+        #region Private methods
 
-                result.Dates.Add(date);
+        private CalendarDateViewModel GetCalendarDateViewModel(DateTime date, IEnumerable<BookingEntity> bookings)
+        {
+            return new CalendarDateViewModel
+            {
+                Date = date,
+                Bookings = GetDateBookings(),
+                PreparationTimes = GetPreparationTimes()
+            };
+
+            List<CalendarBookingViewModel> GetDateBookings()
+            {
+                return bookings
+                    .Where(x => x.BookingStart <= date.Date && x.BookingEnd >= date.Date)
+                    .Select(x =>
+                        new CalendarBookingViewModel
+                        {
+                            Id = x.Id,
+                            Unit = x.UnitId
+                        })
+                    .OrderBy(x => x.Unit)
+                    .ToList();
             }
 
-            return new ServiceResponse<CalendarViewModel> { Result = result, Status = ResponseStatus.Success };
+            List<CalendarPreparationTimeViewModel> GetPreparationTimes()
+            {
+                return bookings
+                    .Where(x => x.PreparationStart <= date.Date && x.PreparationEnd >= date.Date)
+                    .Select(x =>
+                        new CalendarPreparationTimeViewModel
+                        {
+                            Unit = x.UnitId
+                        })
+                    .OrderBy(x => x.Unit)
+                    .ToList();
+            }
         }
+
+        #endregion
     }
 }

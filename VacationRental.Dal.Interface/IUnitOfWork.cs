@@ -10,7 +10,5 @@ namespace VacationRental.Dal.Interface
         IRentalsRepository RentalsRepository { get; }
 
         Task<int> CommitAsync();
-
-        Task RejectChangesAsync();
     }
 }

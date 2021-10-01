@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
@@ -20,8 +21,7 @@ namespace VacationRental.Services
 
         #region Constructor
 
-        public RentalsService(IUnitOfWork unitOfWork,
-            IMapper mapper)
+        public RentalsService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -46,15 +46,22 @@ namespace VacationRental.Services
             return new ServiceResponse<RentalViewModel>
             {
                 Status = ResponseStatus.Success,
-                Result = _mapper.Map<RentalViewModel>(await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId))
+                Result = _mapper.Map<RentalViewModel>(
+                    await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId))
             };
         }
 
-        public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(RentalBindingModel units)
+        public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(RentalBindingModel request)
         {
-            var tt = await _unitOfWork.RentalsRepository.AddAsync(_mapper.Map<RentalEntityCreate>(units));
+            var createdRental = await _unitOfWork.RentalsRepository.AddAsync(_mapper.Map<RentalEntityCreate>(request));
             await _unitOfWork.CommitAsync();
-            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(tt), Status = ResponseStatus.Success }; ;
+
+            return new ServiceResponse<ResourceIdViewModel>
+            {
+                Result = _mapper.Map<ResourceIdViewModel>(createdRental),
+                Status = ResponseStatus.Success
+            };
+            ;
         }
 
         public async Task<ServiceResponse<ResourceIdViewModel>> UpdateAsync(PutRentalRequest request)
@@ -69,49 +76,122 @@ namespace VacationRental.Services
                     Status = ResponseStatus.RentalNotFound
                 };
             }
-            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(rental.Id, DateTime.Now.Date, DateTime.MaxValue.Date);
 
-
-            if (request.Units < rental.Units)
+            if (!RentalChanged(request, rental))
             {
-                var uns = Enumerable.Range(request.Units + 1, rental.Units - request.Units).ToList();
-
-                if (bookings.Any(x => uns.Any(y => y == x.UnitId)))
+                return new ServiceResponse<ResourceIdViewModel>
                 {
-                    throw new ApplicationException("test");
-                }
+                    Result = _mapper.Map<ResourceIdViewModel>(rental),
+                    Status = ResponseStatus.Success
+                };
             }
 
+            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(
+                rental.Id,
+                DateTime.Now.Date,
+                DateTime.MaxValue.Date);
 
-            foreach (var gr in bookings.GroupBy(x => x.UnitId))
+
+            if (IsOverlappingDueToUnitDecreasing(bookings, rental, request.Units) ||
+                IsOverlappingDueToPreparationTimeIncreasing(bookings, rental, request.PreparationTimeInDays))
+
             {
-                BookingEntity st = null;
-                gr.OrderBy(x => x.BookingStart).Aggregate(st, (previous, current) =>
-                   {
-                       if (previous != null && previous.PreparationEnd >= current.BookingStart)
-                       {
-                           //await _unitOfWork.RejectChangesAsync();
-                           throw new ApplicationException("test2");
-
-                       }
-
-                       current.PreparationEnd = current.PreparationStart.AddDays(request.PreparationTimeInDays - 1);
-
-                       return current;
-                   });
+                return new ServiceResponse<ResourceIdViewModel>
+                {
+                    Status = ResponseStatus.Conflict
+                };
             }
 
+            var updatedRental = await UpdateRentalAndBookings(request, bookings);
 
+            return new ServiceResponse<ResourceIdViewModel>
+            {
+                Result = _mapper.Map<ResourceIdViewModel>(updatedRental),
+                Status = ResponseStatus.Success
+            };
+        }
 
-            var rr = _mapper.Map<RentalEntity>(request);
-            rr.Id = request.RentalId;
+        #endregion
 
-            await _unitOfWork.BookingsRepository.BulkUpdateAsync(bookings);
+        #region Private methods
 
-            var res = await _unitOfWork.RentalsRepository.UpdateAsync(rr);
+        private bool RentalChanged(PutRentalRequest request, RentalEntity rental)
+        {
+            return request.PreparationTimeInDays != rental.PreparationTimeInDays
+                   || request.Units != rental.Units;
+        }
+
+        private bool IsOverlappingDueToUnitDecreasing(IEnumerable<BookingEntity> bookings, RentalEntity rental, int updatedUnits)
+        {
+            if (updatedUnits >= rental.Units)
+            {
+                return false;
+            }
+
+            var firstDecreasedUnitId = updatedUnits + 1;
+            var decreasedUnitsCount = rental.Units - updatedUnits;
+            var decreasedUnits = Enumerable.Range(firstDecreasedUnitId, decreasedUnitsCount).ToList();
+
+            return bookings.Any(booking => decreasedUnits.Any(unitId => unitId == booking.UnitId));
+        }
+
+        private bool IsOverlappingDueToPreparationTimeIncreasing(IEnumerable<BookingEntity> bookings,
+                                                                 RentalEntity rental,
+                                                                 int updatedPreparationTimeInDays)
+        {
+            if (updatedPreparationTimeInDays <= rental.PreparationTimeInDays)
+            {
+                return false;
+            }
+
+            return bookings.GroupBy(x => x.UnitId)
+                           .Any(bookingsGroup =>
+                           {
+                               var isOverlapping = false;
+                               BookingEntity previous = null;
+                               foreach (var booking in bookingsGroup.OrderBy(x => x.BookingStart))
+                               {
+                                   if (previous != null)
+                                   {
+                                       var daysForNextBooking = (booking.BookingStart - previous.BookingEnd).Days;
+                                       if (daysForNextBooking <= updatedPreparationTimeInDays)
+                                       {
+                                           isOverlapping = true;
+                                           break;
+                                       }
+                                   }
+
+                                   previous = booking;
+                               }
+
+                               return isOverlapping;
+                           });
+        }
+
+        private async Task<RentalEntity> UpdateRentalAndBookings(PutRentalRequest request, IEnumerable<BookingEntity> bookings)
+        {
+            var updatedRental = await UpdateRental(request);
+            await UpdateBookings(request, bookings);
             await _unitOfWork.CommitAsync();
-            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(res), Status = ResponseStatus.Success };
 
+            return updatedRental;
+
+            async Task<RentalEntity> UpdateRental(PutRentalRequest putRequest)
+            {
+                var rentalEntity = _mapper.Map<RentalEntity>(putRequest);
+                rentalEntity.Id = request.RentalId;
+                return await _unitOfWork.RentalsRepository.UpdateAsync(rentalEntity);
+            }
+
+            async Task UpdateBookings(PutRentalRequest putRequest, IEnumerable<BookingEntity> currentBookings)
+            {
+                foreach (var booking in currentBookings)
+                {
+                    booking.PreparationEnd = booking.PreparationStart.AddDays(putRequest.PreparationTimeInDays - 1);
+                }
+
+                await _unitOfWork.BookingsRepository.BulkUpdateAsync(currentBookings);
+            }
         }
 
         #endregion

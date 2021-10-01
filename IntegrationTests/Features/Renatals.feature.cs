@@ -222,12 +222,12 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Update rental by descreasing units get 500 status")]
-        public virtual void UpdateRentalByDescreasingUnitsGet500Status()
+        [NUnit.Framework.DescriptionAttribute("Update rental by descreasing units get 409 status")]
+        public virtual void UpdateRentalByDescreasingUnitsGet409Status()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update rental by descreasing units get 500 status", null, tagsOfScenario, argumentsOfScenario);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update rental by descreasing units get 409 status", null, tagsOfScenario, argumentsOfScenario);
 #line 27
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -264,19 +264,19 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("update rental by setting 2 units and preparation time 2", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 33
- testRunner.Then("the rental update result should be 500", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the rental update result should be 409", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Update rental by increasing preparation time and get 500 status")]
-        public virtual void UpdateRentalByIncreasingPreparationTimeAndGet500Status()
+        [NUnit.Framework.DescriptionAttribute("Update rental by increasing preparation time and get 409 status")]
+        public virtual void UpdateRentalByIncreasingPreparationTimeAndGet409Status()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update rental by increasing preparation time and get 500 status", null, tagsOfScenario, argumentsOfScenario);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update rental by increasing preparation time and get 409 status", null, tagsOfScenario, argumentsOfScenario);
 #line 35
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -322,7 +322,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("update rental by setting 3 units and preparation time 3", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 44
- testRunner.Then("the rental update result should be 500", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the rental update result should be 409", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

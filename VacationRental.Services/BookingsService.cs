@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
@@ -42,7 +42,7 @@ namespace VacationRental.Services
                     Status = ResponseStatus.BookingNotFound
                 };
             }
-
+            
             return new ServiceResponse<BookingViewModel>
             {
                 Result = _mapper.Map<BookingViewModel>(result),

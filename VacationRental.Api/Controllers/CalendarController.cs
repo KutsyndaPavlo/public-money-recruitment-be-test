@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Validation;
 
 namespace VacationRental.Api.Controllers
 {

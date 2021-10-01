@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using VacationRental.Dal.Interface.Entities;
-using VacationRental.Services.Interface.Models;
 using VacationRental.Dal.InMemory;
+using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
+using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Validation;
+using VacationRental.Services.Validation;
 
 namespace VacationRental.Services
 {

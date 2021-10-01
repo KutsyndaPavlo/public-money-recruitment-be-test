@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading.Tasks;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Validation;
 
 namespace VacationRental.Api.Controllers
 {

@@ -1,6 +1,6 @@
 ﻿using VacationRental.Services.Interface.Models;
 
-namespace VacationRental.Services.Interface
+namespace VacationRental.Services.Interface.Validation
 {
     public interface IRentalValidationService
     {

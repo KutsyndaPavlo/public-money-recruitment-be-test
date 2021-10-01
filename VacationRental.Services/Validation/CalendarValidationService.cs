@@ -11,15 +11,15 @@ namespace VacationRental.Services.Validation
 
         private const string incorrectNightsErrorMessage = "Nigts must be positive";
         private const string rentalNotFoundErrorMessage = "Rental not found";
-        private readonly IRentalsRepository _rentalRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         #endregion
 
         #region Fields
 
-        public CalendarValidationService(IRentalsRepository rentalRepository)
+        public CalendarValidationService(IUnitOfWork unitOfWork)
         {
-            _rentalRepository = rentalRepository;
+            _unitOfWork = unitOfWork;
         }
 
         #endregion
@@ -28,7 +28,7 @@ namespace VacationRental.Services.Validation
 
         public async Task<ServiceResponse<string>> ValidateGetRequestAsync(GetCalendarRequest request)
         {
-            if (await _rentalRepository.GetByIdAsync(request.RentalId) == null)
+            if (await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId) == null)
             {
                 return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = rentalNotFoundErrorMessage };
             }

@@ -9,8 +9,7 @@ namespace VacationRental.Dal.InMemory
     {
         public static IServiceCollection ConfigureInMemoryDataDependencies(this IServiceCollection services)
         {
-            services.AddScoped<IRentalsRepository, RentalsRepository>();
-            services.AddScoped<IBookingsRepository, BookingsRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>(); 
 
             services.AddDbContext<VacationRentalDbContext>(options => options.UseInMemoryDatabase(databaseName: "VacationRentalDb"));
 

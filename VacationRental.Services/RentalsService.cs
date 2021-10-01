@@ -13,20 +13,17 @@ namespace VacationRental.Services
     {
         #region Fields
 
-        private readonly IRentalsRepository _rentalsRepository;
-        private readonly IBookingsRepository _bookingsRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         #endregion
 
         #region Constructor
 
-        public RentalsService(IRentalsRepository rentalsRepository,
-            IBookingsRepository bookingsRepository,
+        public RentalsService(IUnitOfWork unitOfWork,
             IMapper mapper)
         {
-            _rentalsRepository = rentalsRepository;
-            _bookingsRepository = bookingsRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -36,7 +33,7 @@ namespace VacationRental.Services
 
         public async Task<ServiceResponse<RentalViewModel>> GetByIdAsync(GetRentalRequest request)
         {
-            var result = await _rentalsRepository.GetByIdAsync(request.RentalId);
+            var result = await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId);
 
             if (result == null)
             {
@@ -49,18 +46,20 @@ namespace VacationRental.Services
             return new ServiceResponse<RentalViewModel>
             {
                 Status = ResponseStatus.Success,
-                Result = _mapper.Map<RentalViewModel>(await _rentalsRepository.GetByIdAsync(request.RentalId))
+                Result = _mapper.Map<RentalViewModel>(await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId))
             };
         }
 
         public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(RentalBindingModel units)
         {
-            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(await _rentalsRepository.AddAsync(_mapper.Map<RentalEntityCreate>(units))), Status = ResponseStatus.Success }; ;
+            var tt = await _unitOfWork.RentalsRepository.AddAsync(_mapper.Map<RentalEntityCreate>(units));
+            await _unitOfWork.CommitAsync();
+            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(tt), Status = ResponseStatus.Success }; ;
         }
 
         public async Task<ServiceResponse<ResourceIdViewModel>> UpdateAsync(PutRentalRequest request)
         {
-            var rental = await _rentalsRepository.GetByIdAsync(request.RentalId);
+            var rental = await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId);
 
             if (rental == null)
             {
@@ -70,7 +69,7 @@ namespace VacationRental.Services
                     Status = ResponseStatus.NotFound
                 };
             }
-            var bookings = await _bookingsRepository.GetBookingsAsync(rental.Id, default(DateTime?), DateTime.Now);
+            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(rental.Id, default(DateTime?), DateTime.Now);
 
 
             if (request.Units < rental.Units)
@@ -91,7 +90,7 @@ namespace VacationRental.Services
                    {
                        if (previous != null && previous.PreparationEnd >= current.BookingStart)
                        {
-
+                           //await _unitOfWork.RejectChangesAsync();
                            throw new ApplicationException("test2");
 
                        }
@@ -110,10 +109,13 @@ namespace VacationRental.Services
             foreach (var tt in bookings)
             {
 
-                await _bookingsRepository.UpdateAsync(tt);
+                await _unitOfWork.BookingsRepository.UpdateAsync(tt);
 
             }
-            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(await _rentalsRepository.UpdateAsync(rr)), Status = ResponseStatus.Success };
+
+            var res = await _unitOfWork.RentalsRepository.UpdateAsync(rr);
+            await _unitOfWork.CommitAsync();
+            return new ServiceResponse<ResourceIdViewModel> { Result = _mapper.Map<ResourceIdViewModel>(res), Status = ResponseStatus.Success };
 
         }
 

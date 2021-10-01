@@ -9,15 +9,15 @@ namespace VacationRental.Services
 {
     public class CalendarService : ICalendarService
     {
-        private readonly IBookingsRepository _bookingsRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CalendarService(IBookingsRepository bookingsRepository)
+        public CalendarService(IUnitOfWork unitOfWork)
         {
-            _bookingsRepository = bookingsRepository;
+            _unitOfWork = unitOfWork;
         }
         public async Task<ServiceResponse<CalendarViewModel>> GetAsync(GetCalendarRequest request)
         {
-            var bookings = await _bookingsRepository.GetBookingsAsync(request.RentalId, request.StartDate, request.StartDate.AddDays(request.Nights));
+            var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(request.RentalId, request.StartDate, request.StartDate.AddDays(request.Nights));
 
             var result = new CalendarViewModel
             {

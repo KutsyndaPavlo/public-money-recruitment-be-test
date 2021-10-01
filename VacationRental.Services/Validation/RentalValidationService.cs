@@ -9,10 +9,10 @@ namespace VacationRental.Services.Validation
 
         private const string incorrectRentalIdErrorMessage = "Incorrect rental id";
         private const string incorrectUnitsErrorMessage = "Units must be positive";
-        private const string incorrectPreparationTimeErrorMessage = "Units must be zero or positive";
+        private const string incorrectPreparationTimeErrorMessage = "Units must be positive";
 
         #endregion
-
+        
         #region Methods
 
         public ServiceResponse<string> ValidateGetRequest(GetRentalRequest request)
@@ -32,7 +32,7 @@ namespace VacationRental.Services.Validation
                 return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = incorrectUnitsErrorMessage };
             }
 
-            if (request.PreparationTimeInDays < 0)
+            if (request.PreparationTimeInDays <= 0)
             {
                 return new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed, Result = incorrectPreparationTimeErrorMessage };
             }

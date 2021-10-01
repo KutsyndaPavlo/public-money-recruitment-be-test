@@ -35,7 +35,6 @@ namespace VacationRental.Dal.InMemory.Repositories
         {
             var rental = new RentalEntity
             {
-                //Id = Interlocked.Increment(ref _counter),
                 Units = rentalEntityCreate.Units,
                 PreparationTimeInDays = rentalEntityCreate.PreparationTimeInDays
             };

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Swagger;
 using VacationRental.Api.Middlewares;
 using VacationRental.Services;
-using VacationRental.Services.Interface;
 
 namespace VacationRental.Api
 {
@@ -27,7 +26,7 @@ namespace VacationRental.Api
 
             services.AddSwaggerGen(opts => opts.SwaggerDoc("v1", new Info { Title = "Vacation rental information", Version = "v1" }));
             
-            services.ConfigureServiceDependencies();
+            services.ConfigureServiceDependencies(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

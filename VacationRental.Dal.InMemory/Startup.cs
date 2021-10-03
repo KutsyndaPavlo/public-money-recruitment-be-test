@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using VacationRental.Dal.InMemory.Repositories;
 using VacationRental.Dal.Interface;
 
 namespace VacationRental.Dal.InMemory
@@ -11,7 +11,9 @@ namespace VacationRental.Dal.InMemory
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>(); 
 
-            services.AddDbContext<VacationRentalDbContext>(options => options.UseInMemoryDatabase(databaseName: "VacationRentalDb"));
+            services.AddDbContext<VacationRentalDbContext>(options => options
+                .UseInMemoryDatabase(databaseName: "VacationRentalDb")
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
 
             return services;
         }

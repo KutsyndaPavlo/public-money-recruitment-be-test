@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using NUnit.Framework;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 using TechTalk.SpecFlow;
 using VacationRental.Api;
 
@@ -26,6 +27,11 @@ namespace IntegrationTests.Steps
             ApiContext.Server = new TestServer(
                 new WebHostBuilder()
                     .UseEnvironment("Development")
+                    .ConfigureAppConfiguration(c =>
+                    {
+                        c.AddJsonFile(appSettings + ".json");
+                        c.AddJsonFile(appSettings + ".development.json");
+                    })
                     .UseStartup<Startup>());
 
             ApiContext.Client = ApiContext.Server.CreateClient();

@@ -61,7 +61,7 @@ namespace VacationRental.Api.Controllers
 
         [HttpPost]
         [SwaggerOperation(Tags = new[] { "Create a booking" })]
-        [SwaggerResponse(StatusCodes.Status200OK, "The created booking id", typeof(ResourceIdViewModel))]
+        [SwaggerResponse(StatusCodes.Status201Created, "The created booking id", typeof(ResourceIdViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during adding a booking")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]

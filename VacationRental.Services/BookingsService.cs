@@ -105,7 +105,6 @@ namespace VacationRental.Services
             bookingToCreate.PreparationTime = rental.PreparationTimeInDays;
 
             var createdBooking = await _unitOfWork.BookingsRepository.AddAsync(bookingToCreate);
-            await _unitOfWork.CommitAsync();
             return createdBooking;
         }
 

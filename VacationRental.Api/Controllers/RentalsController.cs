@@ -65,7 +65,7 @@ namespace VacationRental.Api.Controllers
 
         [HttpPost]
         [SwaggerOperation(Tags = new[] { "Create a rental" })]
-        [SwaggerResponse(StatusCodes.Status200OK, "The created rental id", typeof(ResourceIdViewModel))]
+        [SwaggerResponse(StatusCodes.Status201Created, "The created rental id", typeof(ResourceIdViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Post(RentalBindingModel request)

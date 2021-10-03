@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\VacationRental.Dal.InMemory\VacationRental.Dal.InMemory.csproj" />
     <ProjectReference Include="..\VacationRental.Dal.Interface\VacationRental.Dal.Interface.csproj" />
+    <ProjectReference Include="..\VacationRental.Dal.PostgreSql\VacationRental.Dal.PostgreSql.csproj" />
     <ProjectReference Include="..\VacationRental.Services.Interface\VacationRental.Services.Interface.csproj" />
   </ItemGroup>
 

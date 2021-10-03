@@ -39,6 +39,7 @@ namespace VacationRental.Dal.InMemory.Repositories
             };
 
             await _dbContext.Rentals.AddAsync(rental);
+            await _dbContext.SaveChangesAsync();
 
             return rental;
         }
@@ -54,6 +55,8 @@ namespace VacationRental.Dal.InMemory.Repositories
 
             currentRental.Units = rentalToUpdate.Units;
             currentRental.PreparationTimeInDays = rentalToUpdate.PreparationTimeInDays;
+
+            await _dbContext.SaveChangesAsync();
 
             return currentRental;
         }

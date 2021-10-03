@@ -53,6 +53,7 @@ namespace VacationRental.Dal.InMemory.Repositories
             };
 
             await _dbContext.Bookings.AddAsync(booking);
+            await _dbContext.SaveChangesAsync();
 
             return booking;
         }
@@ -69,6 +70,8 @@ namespace VacationRental.Dal.InMemory.Repositories
                 }
                 currentBooking.PreparationEnd = booking.PreparationEnd;
             }
+
+            await _dbContext.SaveChangesAsync();
 
             return bookingsToUpdate;
         }

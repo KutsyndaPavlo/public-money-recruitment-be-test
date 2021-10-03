@@ -1,0 +1,33 @@
+version: '3.7' 
+services:     
+    # vacation_rental_api:
+        # image: vacation-rental-api
+        # ports:
+            # - 8080:80
+            
+    postgres_db:
+        image: postgres:11.6-alpine
+        restart: always
+        environment:
+            POSTGRES_USER: "postgres"
+            POSTGRES_PASSWORD: "12345"
+            POSTGRES_DB: "postgres"
+        ports:
+            - 5432:5432 
+            
+    flyway_migration:
+        image: flyway/flyway:7.9.1-alpine
+        volumes:
+            - .\VacationRental.Dal.PostgreSql\MigrationScripts:/flyway/sql
+        environment:
+            FLYWAY_URL: "jdbc:postgresql://postgres_db/postgres"
+            FLYWAY_USER: "postgres"
+            FLYWAY_PASSWORD: "12345"
+            FLYWAY_CONNECT_RETRIES: 60
+            FLYWAY_BASELINE_ON_MIGRATE: "true"
+            FLYWAY_BASELINE_VERSION: "0.0"       
+        command: migrate
+        depends_on:
+            - postgres_db
+
+  

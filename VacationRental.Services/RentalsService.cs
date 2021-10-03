@@ -54,7 +54,6 @@ namespace VacationRental.Services
         public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(RentalBindingModel request)
         {
             var createdRental = await _unitOfWork.RentalsRepository.AddAsync(_mapper.Map<RentalEntityCreate>(request));
-            await _unitOfWork.CommitAsync();
 
             return new ServiceResponse<ResourceIdViewModel>
             {
@@ -170,9 +169,17 @@ namespace VacationRental.Services
 
         private async Task<RentalEntity> UpdateRentalAndBookings(PutRentalRequest request, IEnumerable<BookingEntity> bookings)
         {
+            _unitOfWork.BeginTransaction();
+
             var updatedRental = await UpdateRental(request);
-            await UpdateBookings(request, bookings);
-            await _unitOfWork.CommitAsync();
+            var updatedBookings = await UpdateBookings(request, bookings);
+
+            if (updatedRental == null || updatedBookings == null)
+            { 
+                _unitOfWork.RollbackTransaction();
+            }
+
+            _unitOfWork.CommitTransaction();
 
             return updatedRental;
 
@@ -183,14 +190,14 @@ namespace VacationRental.Services
                 return await _unitOfWork.RentalsRepository.UpdateAsync(rentalEntity);
             }
 
-            async Task UpdateBookings(PutRentalRequest putRequest, IEnumerable<BookingEntity> currentBookings)
+            async Task<IEnumerable<BookingEntity>> UpdateBookings(PutRentalRequest putRequest, IEnumerable<BookingEntity> currentBookings)
             {
                 foreach (var booking in currentBookings)
                 {
                     booking.PreparationEnd = booking.PreparationStart.AddDays(putRequest.PreparationTimeInDays - 1);
                 }
 
-                await _unitOfWork.BookingsRepository.BulkUpdateAsync(currentBookings);
+                return await _unitOfWork.BookingsRepository.BulkUpdateAsync(currentBookings);
             }
         }
 

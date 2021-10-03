@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Microsoft.Extensions.Configuration;
 using VacationRental.Dal.InMemory;
 using VacationRental.Dal.Interface.Entities;
+using VacationRental.Dal.PostgreSql;
 using VacationRental.Services.Interface;
 using VacationRental.Services.Interface.Models;
 using VacationRental.Services.Interface.Validation;
@@ -29,7 +31,7 @@ namespace VacationRental.Services
                 config.CreateMap<BookingBindingModel, BookingEntityCreate>();
             };
 
-        public static IServiceCollection ConfigureServiceDependencies(this IServiceCollection services)
+        public static IServiceCollection ConfigureServiceDependencies(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAutoMapper(autoMapperConfig, typeof(Profile).Assembly);
 
@@ -40,7 +42,18 @@ namespace VacationRental.Services
             services.AddScoped<IRentalValidationService, RentalValidationService>();
             services.AddScoped<ICalendarValidationService, CalendarValidationService>();
 
-            services.ConfigureInMemoryDataDependencies();
+            var connectionString = configuration.GetConnectionString("VacationRentals");
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                // Use InMemory database
+                services.ConfigureInMemoryDataDependencies();
+            }
+            else
+            {
+                // Use PostgreSQL database in docker
+                services.ConfigurePostgreSqlDataDependencies(connectionString);
+            }
 
             return services;
         }

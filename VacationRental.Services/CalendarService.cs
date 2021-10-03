@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Remotion.Linq.Clauses.ResultOperators;
 using VacationRental.Dal.Interface;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
-using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Enums;
+using VacationRental.Services.Interface.Models.Calendar;
+using VacationRental.Services.Interface.Models.Shared;
 
 namespace VacationRental.Services
 {
-    public class CalendarService : ICalendarService
+    public class CalendarService : ServiceBase, ICalendarService
     {
         #region Fields
 
@@ -35,15 +38,14 @@ namespace VacationRental.Services
 
             if (rental == null)
             {
-                return new ServiceResponse<CalendarViewModel>
-                {
-                    Status = ResponseStatus.RentalNotFound
-                };
+                return GetServiceResponse<CalendarViewModel>(ResponseStatus.RentalNotFound);
             }
 
+            var calendarStartDate = request.StartDate;
+            var calendarEndDay = request.StartDate.AddDays(request.Nights);
             var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(request.RentalId,
-                                                                                                       request.StartDate,
-                                                                                                       request.StartDate.AddDays(request.Nights));
+                                                                                                       calendarStartDate,
+                                                                                                       calendarEndDay);
             var result = new CalendarViewModel
             {
                 RentalId = request.RentalId,
@@ -52,11 +54,7 @@ namespace VacationRental.Services
                                   .ToList()
             };
 
-            return new ServiceResponse<CalendarViewModel>
-            {
-                Result = result,
-                Status = ResponseStatus.Success
-            };
+            return GetServiceResponse<CalendarViewModel>(ResponseStatus.Success, result);
         }
 
         #endregion

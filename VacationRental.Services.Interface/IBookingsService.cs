@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
-using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Models.Bookings;
+using VacationRental.Services.Interface.Models.Shared;
 
 namespace VacationRental.Services.Interface
 {

@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using Microsoft.Extensions.Configuration;
 using VacationRental.Dal.InMemory;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Dal.PostgreSql;
 using VacationRental.Services.Interface;
-using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Models.Bookings;
+using VacationRental.Services.Interface.Models.Rentals;
+using VacationRental.Services.Interface.Models.Shared;
 using VacationRental.Services.Interface.Validation;
 using VacationRental.Services.Validation;
 

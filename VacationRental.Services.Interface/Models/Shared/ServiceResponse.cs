@@ -1,4 +1,6 @@
-﻿namespace VacationRental.Services.Interface.Models
+﻿using VacationRental.Services.Interface.Enums;
+
+namespace VacationRental.Services.Interface.Models.Shared
 {
     public class ServiceResponse<T> where T : class
     {

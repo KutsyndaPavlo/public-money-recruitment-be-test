@@ -1,71 +1,44 @@
 ﻿using VacationRental.Services.Constants;
-using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Enums;
+using VacationRental.Services.Interface.Models.Rentals;
+using VacationRental.Services.Interface.Models.Shared;
 using VacationRental.Services.Interface.Validation;
 
 namespace VacationRental.Services.Validation
 {
-    public class RentalValidationService : IRentalValidationService
+    public class RentalValidationService : ServiceBase, IRentalValidationService
     {
         #region Methods
 
         public ServiceResponse<string> ValidateGetRequest(GetRentalRequest request)
         {
-            if (request.RentalId <= 0)
-            {
-                return new ServiceResponse<string>
-                {
-                    Status = ResponseStatus.ValidationFailed, 
-                    Result = VacationRentalConstants.IncorrectRentalIdErrorMessage
-                };
-            }
-
-            return new ServiceResponse<string> { Status = ResponseStatus.Success };
+            return request.RentalId <= 0 
+                ? GetServiceResponse(ResponseStatus.ValidationFailed, VacationRentalConstants.IncorrectRentalIdErrorMessage)
+                : GetServiceResponse<string>(ResponseStatus.Success);
         }
 
         public ServiceResponse<string> ValidatePostRequest(RentalBindingModel request)
         {
             if (request.Units <= 0)
             {
-                return new ServiceResponse<string>
-                {
-                    Status = ResponseStatus.ValidationFailed, 
-                    Result = VacationRentalConstants.IncorrectUnitsErrorMessage
-                };
+                return GetServiceResponse(ResponseStatus.ValidationFailed, VacationRentalConstants.IncorrectUnitsErrorMessage);
             }
 
-            if (request.PreparationTimeInDays <= 0)
-            {
-                return new ServiceResponse<string>
-                {
-                    Status = ResponseStatus.ValidationFailed,
-                    Result = VacationRentalConstants.IncorrectPreparationTimeErrorMessage
-                };
-            }
-
-            return new ServiceResponse<string> { Status = ResponseStatus.Success };
+            return request.PreparationTimeInDays <= 0 
+                ? GetServiceResponse(ResponseStatus.ValidationFailed, VacationRentalConstants.IncorrectPreparationTimeErrorMessage) 
+                : GetServiceResponse<string>(ResponseStatus.Success);
         }
 
         public ServiceResponse<string> ValidatePutRequest(PutRentalRequest request)
         {
             if (request.Units <= 0)
             {
-                return new ServiceResponse<string>
-                {
-                    Status = ResponseStatus.ValidationFailed, 
-                    Result = VacationRentalConstants.IncorrectUnitsErrorMessage
-                };
+                return GetServiceResponse(ResponseStatus.ValidationFailed, VacationRentalConstants.IncorrectUnitsErrorMessage);
             }
 
-            if (request.PreparationTimeInDays < 0)
-            {
-                return new ServiceResponse<string>
-                {
-                    Status = ResponseStatus.ValidationFailed, 
-                    Result = VacationRentalConstants.IncorrectPreparationTimeErrorMessage
-                };
-            }
-
-            return new ServiceResponse<string> { Status = ResponseStatus.Success };
+            return request.PreparationTimeInDays < 0 
+                ? GetServiceResponse(ResponseStatus.ValidationFailed, VacationRentalConstants.IncorrectPreparationTimeErrorMessage) 
+                : GetServiceResponse<string>(ResponseStatus.Success);
         }
 
         #endregion

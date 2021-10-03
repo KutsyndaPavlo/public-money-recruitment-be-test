@@ -1,4 +1,4 @@
-﻿namespace VacationRental.Services.Interface.Models
+﻿namespace VacationRental.Services.Interface.Models.Bookings
 {
     public class GetBookingRequest
     {

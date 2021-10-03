@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
-using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Enums;
+using VacationRental.Services.Interface.Models.Bookings;
+using VacationRental.Services.Interface.Models.Shared;
 
 namespace VacationRental.Services
 {
-    public class BookingsService : IBookingsService
+    public class BookingsService : ServiceBase, IBookingsService
     {
         #region Fields
 
@@ -35,19 +37,9 @@ namespace VacationRental.Services
         {
             var result = await _unitOfWork.BookingsRepository.GetByIdAsync(request.BookingId);
 
-            if (result == null)
-            {
-                return new ServiceResponse<BookingViewModel>
-                {
-                    Status = ResponseStatus.BookingNotFound
-                };
-            }
-            
-            return new ServiceResponse<BookingViewModel>
-            {
-                Result = _mapper.Map<BookingViewModel>(result),
-                Status = ResponseStatus.Success
-            };
+            return result == null 
+                ? GetServiceResponse<BookingViewModel>(ResponseStatus.BookingNotFound) 
+                : GetServiceResponse(ResponseStatus.Success, _mapper.Map<BookingViewModel>(result));
         }
 
         public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(BookingBindingModel request)
@@ -56,29 +48,19 @@ namespace VacationRental.Services
 
             if (rental == null)
             {
-                return new ServiceResponse<ResourceIdViewModel>
-                {
-                    Status = ResponseStatus.RentalNotFound
-                };
+                return GetServiceResponse<ResourceIdViewModel>(ResponseStatus.RentalNotFound);
             }
 
             var availableUnits = await GetAvailableUnitsAsync(request, rental);
 
             if (!availableUnits.Any())
             {
-                return new ServiceResponse<ResourceIdViewModel>
-                {
-                    Status = ResponseStatus.Conflict
-                };
+                return GetServiceResponse<ResourceIdViewModel>(ResponseStatus.Conflict);
             }
 
             var createdBooking = await SaveBookingAsync(request, rental, availableUnits.First());
 
-            return new ServiceResponse<ResourceIdViewModel>
-            {
-                Result = _mapper.Map<ResourceIdViewModel>(createdBooking),
-                Status = ResponseStatus.Success
-            };
+            return GetServiceResponse(ResponseStatus.Success, _mapper.Map<ResourceIdViewModel>(createdBooking));
         }
 
         #endregion
@@ -87,10 +69,13 @@ namespace VacationRental.Services
 
         private async Task<IEnumerable<int>> GetAvailableUnitsAsync(BookingBindingModel request, RentalEntity rental)
         {
+            var currentBookingStartDay = request.Start;
+            var lastPreparationDayAfterCurrentBooking = request.Start.AddDays(request.Nights + rental.PreparationTimeInDays - 1);
+
             var overlappedBookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(
                 request.RentalId,
-                request.Start,
-                request.Start.AddDays(request.Nights + rental.PreparationTimeInDays - 1));
+                currentBookingStartDay,
+                lastPreparationDayAfterCurrentBooking);
 
             var unitsList = Enumerable.Range(_firstUnitId, rental.Units);
             var bookedUnits = overlappedBookings.Select(x => x.UnitId);

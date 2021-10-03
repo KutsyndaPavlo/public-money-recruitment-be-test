@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using VacationRental.Dal.Interface;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
-using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Enums;
+using VacationRental.Services.Interface.Models.Rentals;
+using VacationRental.Services.Interface.Models.Shared;
 
 namespace VacationRental.Services
 {
-    public class RentalsService : IRentalsService
+    public class RentalsService : ServiceBase, IRentalsService
     {
         #region Fields
 
@@ -35,32 +37,16 @@ namespace VacationRental.Services
         {
             var result = await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId);
 
-            if (result == null)
-            {
-                return new ServiceResponse<RentalViewModel>
-                {
-                    Status = ResponseStatus.RentalNotFound
-                };
-            }
-
-            return new ServiceResponse<RentalViewModel>
-            {
-                Status = ResponseStatus.Success,
-                Result = _mapper.Map<RentalViewModel>(
-                    await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId))
-            };
+            return result == null 
+                ? GetServiceResponse<RentalViewModel>(ResponseStatus.RentalNotFound) 
+                : GetServiceResponse(ResponseStatus.Success, _mapper.Map<RentalViewModel>(result));
         }
 
         public async Task<ServiceResponse<ResourceIdViewModel>> AddAsync(RentalBindingModel request)
         {
             var createdRental = await _unitOfWork.RentalsRepository.AddAsync(_mapper.Map<RentalEntityCreate>(request));
 
-            return new ServiceResponse<ResourceIdViewModel>
-            {
-                Result = _mapper.Map<ResourceIdViewModel>(createdRental),
-                Status = ResponseStatus.Success
-            };
-            ;
+            return GetServiceResponse(ResponseStatus.Success, _mapper.Map<ResourceIdViewModel>(createdRental));
         }
 
         public async Task<ServiceResponse<ResourceIdViewModel>> UpdateAsync(PutRentalRequest request)
@@ -69,20 +55,12 @@ namespace VacationRental.Services
 
             if (rental == null)
             {
-
-                return new ServiceResponse<ResourceIdViewModel>
-                {
-                    Status = ResponseStatus.RentalNotFound
-                };
+                return GetServiceResponse<ResourceIdViewModel>(ResponseStatus.RentalNotFound);
             }
 
             if (!RentalChanged(request, rental))
             {
-                return new ServiceResponse<ResourceIdViewModel>
-                {
-                    Result = _mapper.Map<ResourceIdViewModel>(rental),
-                    Status = ResponseStatus.Success
-                };
+                return GetServiceResponse(ResponseStatus.Success, _mapper.Map<ResourceIdViewModel>(rental));
             }
 
             var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(
@@ -95,19 +73,12 @@ namespace VacationRental.Services
                 IsOverlappingDueToPreparationTimeIncreasing(bookings, rental, request.PreparationTimeInDays))
 
             {
-                return new ServiceResponse<ResourceIdViewModel>
-                {
-                    Status = ResponseStatus.Conflict
-                };
+                return GetServiceResponse<ResourceIdViewModel>(ResponseStatus.Conflict);
             }
 
             var updatedRental = await UpdateRentalAndBookings(request, bookings);
 
-            return new ServiceResponse<ResourceIdViewModel>
-            {
-                Result = _mapper.Map<ResourceIdViewModel>(updatedRental),
-                Status = ResponseStatus.Success
-            };
+            return GetServiceResponse(ResponseStatus.Success, _mapper.Map<ResourceIdViewModel>(updatedRental));
         }
 
         #endregion
@@ -175,7 +146,7 @@ namespace VacationRental.Services
             var updatedBookings = await UpdateBookings(request, bookings);
 
             if (updatedRental == null || updatedBookings == null)
-            { 
+            {
                 _unitOfWork.RollbackTransaction();
             }
 

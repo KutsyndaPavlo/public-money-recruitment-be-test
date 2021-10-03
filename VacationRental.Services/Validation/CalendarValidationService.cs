@@ -1,22 +1,20 @@
 ﻿using VacationRental.Services.Constants;
-using VacationRental.Services.Interface.Models;
+using VacationRental.Services.Interface.Enums;
+using VacationRental.Services.Interface.Models.Calendar;
+using VacationRental.Services.Interface.Models.Shared;
 using VacationRental.Services.Interface.Validation;
 
 namespace VacationRental.Services.Validation
 {
-    public class CalendarValidationService : ICalendarValidationService
+    public class CalendarValidationService : ServiceBase, ICalendarValidationService
     {
         #region Methods
 
         public ServiceResponse<string>ValidateGetRequest(GetCalendarRequest request)
         {
             return request.Nights <= 0 
-                ? new ServiceResponse<string>
-                {
-                    Status = ResponseStatus.ValidationFailed,
-                    Result = VacationRentalConstants.IncorrectNightsErrorMessage
-                } 
-                : new ServiceResponse<string> { Status = ResponseStatus.Success };
+                ? GetServiceResponse(ResponseStatus.ValidationFailed, VacationRentalConstants.IncorrectNightsErrorMessage)
+                : GetServiceResponse<string>(ResponseStatus.Success);
         }
 
         #endregion

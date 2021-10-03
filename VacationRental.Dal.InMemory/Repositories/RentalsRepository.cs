@@ -50,7 +50,7 @@ namespace VacationRental.Dal.InMemory.Repositories
 
             if (currentRental == null)
             {
-                throw new Exception();   //ToDO
+                throw new ArgumentException("rentalId");
             }
 
             currentRental.Units = rentalToUpdate.Units;

@@ -63,7 +63,7 @@ namespace VacationRental.Dal.PostgreSql.Repositories
                 await _connection.OpenAsync();
             }
 
-            var query = $"select id as id, units as units, preparation_time_in_days as preparationTimeInDays from rental where id = @id;";
+            var query = "select id as id, units as units, preparation_time_in_days as preparationTimeInDays from rental where id = @id;";
            
             var result = await _connection.QueryAsync<RentalEntity>(query, parameters, commandType: CommandType.Text)
                 .ConfigureAwait(false);
@@ -84,8 +84,8 @@ namespace VacationRental.Dal.PostgreSql.Repositories
             }
 
             var queryBuilder = new StringBuilder();
-            queryBuilder.Append($"update rental set units = @units, preparation_time_in_days = @preparationTimeInDays where id = @id ");
-            queryBuilder.Append($"RETURNING id as id, units as units, preparation_time_in_days as preparationTimeInDays;");
+            queryBuilder.Append("update rental set units = @units, preparation_time_in_days = @preparationTimeInDays where id = @id ");
+            queryBuilder.Append("RETURNING id as id, units as units, preparation_time_in_days as preparationTimeInDays;");
 
             var result = await _connection.QueryAsync<RentalEntity>(
                     queryBuilder.ToString(),

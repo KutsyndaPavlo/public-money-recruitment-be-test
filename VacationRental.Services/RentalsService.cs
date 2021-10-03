@@ -142,15 +142,20 @@ namespace VacationRental.Services
         {
             _unitOfWork.BeginTransaction();
 
-            var updatedRental = await UpdateRental(request);
-            var updatedBookings = await UpdateBookings(request, bookings);
+            RentalEntity updatedRental;
 
-            if (updatedRental == null || updatedBookings == null)
+            try
+            {
+                updatedRental = await UpdateRental(request);
+                await UpdateBookings(request, bookings);
+
+                _unitOfWork.CommitTransaction();
+            }
+            catch
             {
                 _unitOfWork.RollbackTransaction();
+                throw;
             }
-
-            _unitOfWork.CommitTransaction();
 
             return updatedRental;
 

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace VacationRental.Dal.Interface.Entities
+﻿namespace VacationRental.Dal.Interface.Entities
 {
-    public class RentalEntityCreate
+    public class RentalEntityCreate : BaseEntity
     {
         public int Units { get; set; }
 

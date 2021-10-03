@@ -45,7 +45,7 @@ namespace VacationRental.Dal.PostgreSql.Repositories
             queryBuilder.Append("INSERT INTO booking (rental_id, unit_id, booking_nights, booking_start, booking_end, preparation_start, preparation_end) ");
             queryBuilder.Append("VALUES(@rentalId, @unitId, @Nights, @start, @end, @preparationStart, @preparationEnd) ");
             queryBuilder.Append("returning id as id , rental_id as rentalId, unit_id as unitId, booking_nights as bookingNights, booking_start as bookingStart, ");
-            queryBuilder.Append(" booking_end as bookingEnd, preparation_start as preparationStart, preparation_end as preparationEnd;");
+            queryBuilder.Append("booking_end as bookingEnd, preparation_start as preparationStart, preparation_end as preparationEnd;");
 
             if (_connection.State != ConnectionState.Open)
             {
@@ -65,19 +65,23 @@ namespace VacationRental.Dal.PostgreSql.Repositories
                 await _connection.OpenAsync();
             }
 
+            var updatedBookings = new List<BookingEntity>();
+
             foreach (var booking in bookingsToUpdate)
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", booking.Id);
                 parameters.Add("@preparationEnd", booking.PreparationEnd);
 
-                var query = $"update booking set preparation_end = @preparationEnd where id = @id;";
+                var query = "update booking set preparation_end = @preparationEnd where id = @id;";
 
-                await _connection.QueryAsync<BookingEntity>(query, parameters, commandType: CommandType.Text)
+                var updateResult = await _connection.QueryAsync<BookingEntity>(query, parameters, commandType: CommandType.Text)
                     .ConfigureAwait(false);
+
+                updatedBookings.Add(updateResult.FirstOrDefault());
             }
 
-            return bookingsToUpdate;
+            return updatedBookings;
         }
 
         public async Task<IEnumerable<BookingEntity>> GetBookingsAsync(int rentalId, DateTime startDate, DateTime endDate)
@@ -93,9 +97,9 @@ namespace VacationRental.Dal.PostgreSql.Repositories
             }
 
             var queryBuilder = new StringBuilder();
-            queryBuilder.Append($"select id as id , rental_id as rentalId, unit_id as unitId, booking_nights as bookingNights, ");
-            queryBuilder.Append($"booking_start as bookingStart, booking_end as bookingEnd, preparation_start as preparationStart, preparation_end as preparationEnd ");
-            queryBuilder.Append($"from booking where rental_id = @rentalId and booking_start <= @endDate and preparation_end >= @startDate;");
+            queryBuilder.Append("select id as id , rental_id as rentalId, unit_id as unitId, booking_nights as bookingNights, ");
+            queryBuilder.Append("booking_start as bookingStart, booking_end as bookingEnd, preparation_start as preparationStart, preparation_end as preparationEnd ");
+            queryBuilder.Append("from booking where rental_id = @rentalId and booking_start <= @endDate and preparation_end >= @startDate;");
 
             return await _connection.QueryAsync<BookingEntity>(queryBuilder.ToString(), parameters, commandType: CommandType.Text)
                 .ConfigureAwait(false);
@@ -112,9 +116,9 @@ namespace VacationRental.Dal.PostgreSql.Repositories
             }
 
             var queryBuilder = new StringBuilder();
-            queryBuilder.Append($"select id as id , rental_id as rentalId, unit_id as unitId, booking_nights as bookingNights, ");
-            queryBuilder.Append($"booking_start as bookingStart, booking_end as bookingEnd, preparation_start as preparationStart, preparation_end as preparationEnd ");
-            queryBuilder.Append($"from booking where id = @id;");
+            queryBuilder.Append("select id as id , rental_id as rentalId, unit_id as unitId, booking_nights as bookingNights, ");
+            queryBuilder.Append("booking_start as bookingStart, booking_end as bookingEnd, preparation_start as preparationStart, preparation_end as preparationEnd ");
+            queryBuilder.Append("from booking where id = @id;");
 
             var result = await _connection.QueryAsync<BookingEntity>(queryBuilder.ToString(), parameters, commandType: CommandType.Text)
                 .ConfigureAwait(false);

@@ -5,12 +5,8 @@ using VacationRental.Dal.Interface.Entities;
 
 namespace VacationRental.Dal.Interface
 {
-    public interface IBookingsRepository
+    public interface IBookingsRepository : IBaseRepository<BookingEntity, BookingEntityCreate>
     {
-        Task<BookingEntity> GetByIdAsync(int id);
-
-        Task<BookingEntity> AddAsync(BookingEntityCreate bookingToCreate);
-
         Task<IEnumerable<BookingEntity>> GetBookingsAsync(int rentalId, DateTime startDate, DateTime endDate);
 
         Task<IEnumerable<BookingEntity>> BulkUpdateAsync(IEnumerable<BookingEntity> bookingsToUpdate);

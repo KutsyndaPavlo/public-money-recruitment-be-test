@@ -66,8 +66,9 @@ namespace VacationRental.Dal.InMemory.Repositories
 
                 if (currentBooking == null)
                 {
-                    throw new Exception();   //ToDO
+                    throw new ArgumentException("bookingId");
                 }
+                
                 currentBooking.PreparationEnd = booking.PreparationEnd;
             }
 

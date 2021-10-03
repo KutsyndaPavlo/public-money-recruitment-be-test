@@ -2,10 +2,8 @@
 
 namespace VacationRental.Dal.Interface.Entities
 {
-    public class BookingEntity
+    public class BookingEntity : BaseEntity
     {
-        public int Id { get; set; }
-
         public int RentalId { get; set; } 
         
         public int UnitId { get; set; }

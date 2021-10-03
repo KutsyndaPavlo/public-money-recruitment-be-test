@@ -20,7 +20,7 @@ Scenario: Correctly added booking for rental with 1 unit and check calendar
     | 2031-01-10 |              |         1        |
 	| 2031-01-11 |              |                  |
 
-Scenario: Co4444rrectly added booking for rental with 3 unit and check calendar
+Scenario: Correctly added booking for rental with 3 units and check calendar
 	Given rental with 3 units and preparation time 2 is created
 	And booking for "2031-02-02" for 3 nights is created
 	And booking for "2031-02-03" for 4 nights is created
@@ -50,7 +50,7 @@ Scenario: Co4444rrectly added booking for rental with 3 unit and check calendar
 	| 2031-02-09 |     1        |                  |
 	| 2031-02-10 |              |       1          |
 
-Scenario: +++++   Correctly added booking for rental with 3 unit and check calendar
+Scenario: Correctly added booking for rental with 3 unit, update renatl by increasing preparation time and check calendar
 	Given rental with 3 units and preparation time 2 is created
 	And booking for "2031-02-02" for 3 nights is created
 	And booking for "2031-02-03" for 4 nights is created

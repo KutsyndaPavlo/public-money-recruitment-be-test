@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace IntegrationTests.Models
+﻿namespace IntegrationTests.Models
 {
     public class RentalBindingModel
     {

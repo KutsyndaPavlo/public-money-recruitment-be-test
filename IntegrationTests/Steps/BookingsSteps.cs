@@ -3,7 +3,6 @@ using IntegrationTests.Models;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
-using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -112,10 +111,35 @@ namespace IntegrationTests.Features
                 var responseBody = await bookingResponse.Content.ReadAsStringAsync();
                 Assert.Fail($"Expected response status code to be {statusCode}, but got {actualStatus}.\nResponse body:\n{responseBody}");
             }
+        }
 
-            var responseMessage= await bookingResponse.Content.ReadAsStringAsync();
+        [When(@"Add a booking for ""(.*)"" for (.*) nights and rental id (.*)")]
+        public async Task WhenAddABookingForForNightsAndRentalId(string date, int nights, int rentalId)
+        {
+            var requestData = new BookingBindingModel
+            {
+                RentalId = rentalId,
+                Start = DateTime.Parse(date),
+                Nights = nights
+            };
 
-           // Assert.AreEqual(responseMessage, errorMessage);
+            var response = await ApiContext.Client.PostAsync("api/v1/bookings", JsonContent.Create(requestData))
+                .ConfigureAwait(false);
+
+            _context.Set(response, "booking_create_response_message");
+        }
+
+        [Then(@"the result of creating a booking should be (.*)")]
+        public async Task ThenTheResultOfCreatingABookingShouldBe(int expectedStatusCode)
+        {
+            var response = _context.Get<HttpResponseMessage>("booking_create_response_message");
+
+            Assert.That(response, Is.Not.Null);
+            if ((int)response.StatusCode != expectedStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                Assert.Fail($"Expected response status code to be {expectedStatusCode}, but got {response.StatusCode }.\nResponse body:\n{responseBody}");
+            }
         }
     }
 }

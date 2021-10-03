@@ -32,7 +32,7 @@ namespace IntegrationTests.Features
         }
 
         [When(@"get calendar by rental id after updates from ""(.*)"" and (.*) nights")]
-        public async Task WhenGetCalendarByRentalIdFromAndNights555(string startDate, int nights)
+        public async Task WhenGetCalendarByRentalIdFromAndNights_1(string startDate, int nights)
         {
             var rental = _context.Get<ResourceIdViewModel>("rental_update_response");
 
@@ -60,59 +60,44 @@ namespace IntegrationTests.Features
             var responseData = JsonConvert.DeserializeObject<CalendarViewModel>(await response.Content.ReadAsStringAsync());
 
             Assert.AreEqual(rental.Id, responseData.RentalId);
-            //Assert.AreEqual(table.Rows.Count, responseData.Dates.Count);
 
-            var ee = table.Rows.ToList().GetEnumerator();
-
-
-
-
-            var trResponse = new List<(DateTime date, int? bookingId, int? bookingUnit, int? preparationUnit)>();
-
-
+            var actualValues = new List<(DateTime date, int? bookingId, int? bookingUnit, int? preparationUnit)>();
 
             foreach (var date in responseData.Dates.OrderBy(x => x.Date))
             {
                 foreach (var booking in date.Bookings.OrderBy(x => x.Id))
                 {
-                    trResponse.Add((date.Date, booking.Id, booking.Unit, default(int?)));
+                    actualValues.Add((date.Date, booking.Id, booking.Unit, default(int?)));
                 }
 
                 foreach (var preparation in date.PreparationTimes.OrderBy(x => x.Unit))
                 {
-                    trResponse.Add((date.Date, default(int?), default(int?), preparation.Unit));
+                    actualValues.Add((date.Date, default(int?), default(int?), preparation.Unit));
                 }
 
                 if (!date.Bookings.Any() && !date.PreparationTimes.Any())
                 {
-                    trResponse.Add((date.Date, default(int?), default(int?), default(int?)));
+                    actualValues.Add((date.Date, default(int?), default(int?), default(int?)));
                 }
             }
 
-            var confVal = table.Rows.Select(x => (DateTime.Parse(x[0]), GetVal(x[1]), GetVal(x[2]))).ToList();
+            var expectedValues = table.Rows.Select(x => (DateTime.Parse(x[0]), GetIntValue(x[1]), GetIntValue(x[2]))).ToList();
 
-            for (int i = 0; i < confVal.Count; i++) 
+            for (int i = 0; i < expectedValues.Count; i++) 
             {
-                var row = confVal[i];
-                var www = trResponse[i];
+                var expectedValue = expectedValues[i];
+                var actualValue = actualValues[i];
 
-                if (row.Item1 != www.date ||  row.Item2 != www.bookingUnit || row.Item3 != www.preparationUnit)
+                if (expectedValue.Item1 != actualValue.date ||  expectedValue.Item2 != actualValue.bookingUnit || expectedValue.Item3 != actualValue.preparationUnit)
                 {
-                    Assert.Fail($"Incorrect val");
+                    Assert.Fail($"Calendar data is incorrect");
                 }
             }
 
-            int? GetVal(string v)
+            int? GetIntValue(string v)
             {
-                if (string.IsNullOrWhiteSpace(v))
-                {
-                    return default(int?);
-                }
-
-                return int.Parse(v);
-            }
-           
-            
+                return string.IsNullOrWhiteSpace(v) ? default(int?) : int.Parse(v);
+            }  
         }
     }
 }

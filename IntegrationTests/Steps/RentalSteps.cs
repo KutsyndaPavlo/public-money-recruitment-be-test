@@ -2,8 +2,6 @@
 using IntegrationTests.Models;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
-using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -103,29 +101,6 @@ namespace IntegrationTests.Steps
             Assert.AreEqual(preparationTime, rental.PreparationTimeInDays);
         }
 
-
-        //[Then(@"the update result should be (.*) and units (.*) and preparation time (.*)")]
-        //public async Task ThenTheUpdateResultShouldBeAndUnitsAndPreparationTime(int statusCode, int units, int preparationTime)
-        //{
-        //    var responseMessage = _context.GetAsync<HttpResponseMessage>("rental_get_response");
-
-        //    Assert.That(responseMessage, Is.Not.Null);
-
-        //    var actualStatus = (int)responseMessage.StatusCode;
-
-        //    if (actualStatus != statusCode)
-        //    {
-        //        var responseBody = await responseMessage.Content.ReadAsStringAsync();
-        //        Assert.Fail($"Expected response status code to be {statusCode}, but got {actualStatus}.\nResponse body:\n{responseBody}");
-        //    }
-
-        //    var rental = JsonConvert.DeserializeObject<RentalViewModel>(await responseMessage.Content.ReadAsStringAsync());
-
-        //    Assert.AreEqual(units, rental.Units);
-
-        //    Assert.AreEqual(preparationTime, rental.PreparationTimeInDays);
-        //}
-
         [Given(@"update1 rental by setting (.*) units and preparation time (.*)")]
         public async Task GivenUpdateRentalBySettingUnitsAndPreparationTime(int units, int preparationTime)
         {
@@ -155,7 +130,7 @@ namespace IntegrationTests.Steps
 
         [When(@"update rental by setting (.*) units and preparation time (.*)")]
         [Given(@"update rental by setting (.*) units and preparation time (.*)")]
-        public async Task GivenUpdateRentalBySettingUnitsAndPreparationTime444(int units, int preparationTime)
+        public async Task GivenUpdateRentalBySettingUnitsAndPreparationTime_1(int units, int preparationTime)
         {
             var rental = _context.Get<ResourceIdViewModel>("rental_create_response");
 
@@ -171,6 +146,30 @@ namespace IntegrationTests.Steps
             Assert.That(response, Is.Not.Null);
 
             _context.Set(response, "rental_update_response");
+        }
+
+        [When(@"get rental by id (.*)")]
+        public async Task WhenGetRentalById_1(int rentalId)
+        {
+            var response = await ApiContext.Client.GetAsync($"api/v1/rentals/{rentalId}").ConfigureAwait(false);
+
+            _context.Set(response, "rental_get_by_id_response");
+        }
+
+        [Then(@"the result should be (.*)")]
+        public async Task ThenTheResultShouldBe_1(int statusCode)
+        {
+            var responseMessage = _context.Get<HttpResponseMessage>("rental_get_by_id_response");
+
+            Assert.That(responseMessage, Is.Not.Null);
+
+            var actualStatus = (int)responseMessage.StatusCode;
+
+            if (actualStatus != statusCode)
+            {
+                var responseBody = await responseMessage.Content.ReadAsStringAsync();
+                Assert.Fail($"Expected response status code to be {statusCode}, but got {actualStatus}.\nResponse body:\n{responseBody}");
+            }
         }
     }
 }

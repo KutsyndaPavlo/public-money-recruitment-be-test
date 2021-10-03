@@ -16,17 +16,17 @@ namespace VacationRental.Api.Controllers
         #region Fields 
 
         private readonly IBookingsService _bookingsService;
-        private readonly IBookingValidatinService _bookingValidatinService;
+        private readonly IBookingValidatinService _bookingValidationService;
 
         #endregion
 
         #region Constructor
 
         public BookingsController(IBookingsService bookingsService,
-                                  IBookingValidatinService bookingValidatinService)
+                                  IBookingValidatinService bookingValidationService)
         {
             _bookingsService = bookingsService;
-            _bookingValidatinService = bookingValidatinService;
+            _bookingValidationService = bookingValidationService;
         }
 
         #endregion
@@ -35,7 +35,7 @@ namespace VacationRental.Api.Controllers
 
         [HttpGet]
         [Route("{bookingId:int}")]
-        [SwaggerOperation(Tags = new[] { "Get booking by id" })]
+        [SwaggerOperation(Tags = new[] { "Get a booking by id" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The booking", typeof(BookingViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Booking not found", typeof(string))]
@@ -44,7 +44,7 @@ namespace VacationRental.Api.Controllers
         {
             var request = new GetBookingRequest { BookingId = bookingId };
 
-            var validationResult = _bookingValidatinService.ValidateGetRequest(request);
+            var validationResult = _bookingValidationService.ValidateGetRequest(request);
             if (validationResult.Status == ResponseStatus.ValidationFailed)
             {
                 return BadRequest(validationResult.Result);
@@ -67,7 +67,7 @@ namespace VacationRental.Api.Controllers
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Post(BookingBindingModel request)
         {
-            var validationResult = _bookingValidatinService.ValidatePostRequest(request);
+            var validationResult = _bookingValidationService.ValidatePostRequest(request);
             if (validationResult.Status == ResponseStatus.ValidationFailed)
             {
                 return BadRequest(validationResult.Result);

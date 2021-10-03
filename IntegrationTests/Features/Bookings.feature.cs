@@ -74,12 +74,12 @@ namespace IntegrationTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add booking and get created booking")]
-        public virtual void AddBookingAndGetCreatedBooking()
+        [NUnit.Framework.DescriptionAttribute("Add booking and successfully get created booking")]
+        public virtual void AddBookingAndSuccessfullyGetCreatedBooking()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get created booking", null, tagsOfScenario, argumentsOfScenario);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and successfully get created booking", null, tagsOfScenario, argumentsOfScenario);
 #line 4
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -117,14 +117,12 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add booking and get \"Not available\" result because there is a booking started bef" +
-            "ore current booking start day and finished after curent booking start day")]
-        public virtual void AddBookingAndGetNotAvailableResultBecauseThereIsABookingStartedBeforeCurrentBookingStartDayAndFinishedAfterCurentBookingStartDay()
+        [NUnit.Framework.DescriptionAttribute("Add booking using missing rental id and receive 400 status code in response")]
+        public virtual void AddBookingUsingMissingRentalIdAndReceive400StatusCodeInResponse()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get \"Not available\" result because there is a booking started bef" +
-                    "ore current booking start day and finished after curent booking start day", null, tagsOfScenario, argumentsOfScenario);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking using missing rental id and receive 400 status code in response", null, tagsOfScenario, argumentsOfScenario);
 #line 10
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -146,15 +144,54 @@ this.ScenarioInitialize(scenarioInfo);
             {
                 this.ScenarioStart();
 #line 11
- testRunner.Given("rental with 1 units and preparation time 1 is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.When("Add a booking for \"2031-01-01\" for 3 nights and rental id 999999999", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 12
+ testRunner.Then("the result of creating a booking should be 400", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Add booking and get 409 status code in response because there is a booking starte" +
+            "d before current booking start day and finished after curent booking start day")]
+        public virtual void AddBookingAndGet409StatusCodeInResponseBecauseThereIsABookingStartedBeforeCurrentBookingStartDayAndFinishedAfterCurentBookingStartDay()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get 409 status code in response because there is a booking starte" +
+                    "d before current booking start day and finished after curent booking start day", null, tagsOfScenario, argumentsOfScenario);
+#line 14
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            bool isScenarioIgnored = default(bool);
+            bool isFeatureIgnored = default(bool);
+            if ((tagsOfScenario != null))
+            {
+                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((this._featureTags != null))
+            {
+                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((isScenarioIgnored || isFeatureIgnored))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 15
+ testRunner.Given("rental with 1 units and preparation time 1 is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 16
  testRunner.And("booking for \"2002-01-01\" for 7 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 13
+#line 17
  testRunner.When("booking for \"2002-01-05\" for 6 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 14
+#line 18
  testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -162,15 +199,15 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add booking and get \"Not available\" result because there is a booking started bef" +
-            "ore current booking end day and finished after curent booking end day")]
-        public virtual void AddBookingAndGetNotAvailableResultBecauseThereIsABookingStartedBeforeCurrentBookingEndDayAndFinishedAfterCurentBookingEndDay()
+        [NUnit.Framework.DescriptionAttribute("Add booking and get 409 status code in response because there is a booking starte" +
+            "d before current booking end day and finished after curent booking end day")]
+        public virtual void AddBookingAndGet409StatusCodeInResponseBecauseThereIsABookingStartedBeforeCurrentBookingEndDayAndFinishedAfterCurentBookingEndDay()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get \"Not available\" result because there is a booking started bef" +
-                    "ore current booking end day and finished after curent booking end day", null, tagsOfScenario, argumentsOfScenario);
-#line 16
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get 409 status code in response because there is a booking starte" +
+                    "d before current booking end day and finished after curent booking end day", null, tagsOfScenario, argumentsOfScenario);
+#line 20
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -190,16 +227,16 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 17
+#line 21
  testRunner.Given("rental with 1 units and preparation time 1 is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 18
+#line 22
  testRunner.And("booking for \"2002-01-04\" for 10 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 19
+#line 23
  testRunner.When("booking for \"2002-01-02\" for 4 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 20
+#line 24
  testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -207,15 +244,15 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add booking and get \"Not available\" result because there is a booking started bef" +
-            "ore current booking start day and finished before curent booking end day")]
-        public virtual void AddBookingAndGetNotAvailableResultBecauseThereIsABookingStartedBeforeCurrentBookingStartDayAndFinishedBeforeCurentBookingEndDay()
+        [NUnit.Framework.DescriptionAttribute("Add booking and get 409 status code in response because there is a booking starte" +
+            "d before current booking start day and finished before curent booking end day")]
+        public virtual void AddBookingAndGet409StatusCodeInResponseBecauseThereIsABookingStartedBeforeCurrentBookingStartDayAndFinishedBeforeCurentBookingEndDay()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get \"Not available\" result because there is a booking started bef" +
-                    "ore current booking start day and finished before curent booking end day", null, tagsOfScenario, argumentsOfScenario);
-#line 22
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get 409 status code in response because there is a booking starte" +
+                    "d before current booking start day and finished before curent booking end day", null, tagsOfScenario, argumentsOfScenario);
+#line 26
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -235,16 +272,16 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 23
+#line 27
  testRunner.Given("rental with 1 units and preparation time 1 is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 24
+#line 28
  testRunner.And("booking for \"2002-01-01\" for 3 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 25
+#line 29
  testRunner.When("booking for \"2002-01-02\" for 3 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 26
+#line 30
  testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -252,13 +289,13 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add booking 3 times and get \"Not available\" result in 4 time")]
-        public virtual void AddBooking3TimesAndGetNotAvailableResultIn4Time()
+        [NUnit.Framework.DescriptionAttribute("Add booking 3 times and get 409 status code in response in 4-th time")]
+        public virtual void AddBooking3TimesAndGet409StatusCodeInResponseIn4_ThTime()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking 3 times and get \"Not available\" result in 4 time", null, tagsOfScenario, argumentsOfScenario);
-#line 28
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking 3 times and get 409 status code in response in 4-th time", null, tagsOfScenario, argumentsOfScenario);
+#line 32
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -278,22 +315,22 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 29
+#line 33
  testRunner.Given("rental with 3 units and preparation time 1 is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 30
+#line 34
  testRunner.And("booking for \"2002-01-01\" for 5 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 31
+#line 35
  testRunner.And("booking for \"2002-01-01\" for 6 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 32
+#line 36
  testRunner.And("booking for \"2002-01-01\" for 7 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 33
+#line 37
  testRunner.When("booking for \"2002-01-01\" for 8 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 34
+#line 38
  testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -301,15 +338,15 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add booking and get \"Not available\" result due to overlapping of first preparatio" +
-            "n day")]
-        public virtual void AddBookingAndGetNotAvailableResultDueToOverlappingOfFirstPreparationDay()
+        [NUnit.Framework.DescriptionAttribute("Add booking and get 409 status code in response due to overlapping of first prepa" +
+            "ration day")]
+        public virtual void AddBookingAndGet409StatusCodeInResponseDueToOverlappingOfFirstPreparationDay()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get \"Not available\" result due to overlapping of first preparatio" +
-                    "n day", null, tagsOfScenario, argumentsOfScenario);
-#line 36
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get 409 status code in response due to overlapping of first prepa" +
+                    "ration day", null, tagsOfScenario, argumentsOfScenario);
+#line 40
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -329,16 +366,16 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 37
+#line 41
  testRunner.Given("rental with 1 units and preparation time 2 is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 38
+#line 42
  testRunner.And("booking for \"2002-01-01\" for 7 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 39
+#line 43
  testRunner.When("booking for \"2002-01-08\" for 6 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 40
+#line 44
  testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -346,15 +383,15 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add booking and get \"Not available\" result due to overlapping of last preparation" +
-            " day")]
-        public virtual void AddBookingAndGetNotAvailableResultDueToOverlappingOfLastPreparationDay()
+        [NUnit.Framework.DescriptionAttribute("Add booking and get 409 status code in response result due to overlapping of last" +
+            " preparation day")]
+        public virtual void AddBookingAndGet409StatusCodeInResponseResultDueToOverlappingOfLastPreparationDay()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get \"Not available\" result due to overlapping of last preparation" +
-                    " day", null, tagsOfScenario, argumentsOfScenario);
-#line 42
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add booking and get 409 status code in response result due to overlapping of last" +
+                    " preparation day", null, tagsOfScenario, argumentsOfScenario);
+#line 46
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -374,16 +411,16 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 43
+#line 47
  testRunner.Given("rental with 1 units and preparation time 2 is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 44
+#line 48
  testRunner.And("booking for \"2002-01-01\" for 7 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 45
+#line 49
  testRunner.When("booking for \"2002-01-09\" for 6 nights is posted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 46
+#line 50
  testRunner.Then("the result should be 409 and message \"Not available\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -391,13 +428,15 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Add next booking after finishing preparation days")]
-        public virtual void AddNextBookingAfterFinishingPreparationDays()
+        [NUnit.Framework.DescriptionAttribute("Add next booking after finishing preparation days and receive 200 status code in " +
+            "response")]
+        public virtual void AddNextBookingAfterFinishingPreparationDaysAndReceive200StatusCodeInResponse()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add next booking after finishing preparation days", null, tagsOfScenario, argumentsOfScenario);
-#line 48
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add next booking after finishing preparation days and receive 200 status code in " +
+                    "response", null, tagsOfScenario, argumentsOfScenario);
+#line 52
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -417,19 +456,19 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 49
+#line 53
  testRunner.Given("rental with 1 units and preparation time 2 is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 50
+#line 54
  testRunner.And("booking for \"2002-01-01\" for 7 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 51
+#line 55
  testRunner.And("booking for \"2002-01-10\" for 6 nights is created", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-#line 52
+#line 56
  testRunner.When("get created booking", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 53
+#line 57
  testRunner.Then("the result should be 200 and start date \"2002-01-10\" and nights 6 and unit 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }

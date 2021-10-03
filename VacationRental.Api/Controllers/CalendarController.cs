@@ -38,7 +38,6 @@ namespace VacationRental.Api.Controllers
         [SwaggerOperation(Tags = new[] { "Get a calendar" })]
         [SwaggerResponse(StatusCodes.Status200OK, "The calendar", typeof(BookingViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Rental not found", typeof(string))]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
         public async Task<IActionResult> Get(int rentalId, DateTime start, int nights)
         {
@@ -61,7 +60,7 @@ namespace VacationRental.Api.Controllers
             switch (result.Status)
             {
                 case ResponseStatus.RentalNotFound:
-                    return NotFound(VacationRentalConstants.RentalNotFoundErrorMessage);
+                    return BadRequest(VacationRentalConstants.RentalNotFoundErrorMessage);
                 default:
                     return Ok(result.Result);
             }

@@ -167,12 +167,12 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Co4444rrectly added booking for rental with 3 unit and check calendar")]
-        public virtual void Co4444RrectlyAddedBookingForRentalWith3UnitAndCheckCalendar()
+        [NUnit.Framework.DescriptionAttribute("Correctly added booking for rental with 3 units and check calendar")]
+        public virtual void CorrectlyAddedBookingForRentalWith3UnitsAndCheckCalendar()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Co4444rrectly added booking for rental with 3 unit and check calendar", null, tagsOfScenario, argumentsOfScenario);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Correctly added booking for rental with 3 units and check calendar", null, tagsOfScenario, argumentsOfScenario);
 #line 23
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -303,12 +303,14 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("+++++   Correctly added booking for rental with 3 unit and check calendar")]
-        public virtual void CorrectlyAddedBookingForRentalWith3UnitAndCheckCalendar()
+        [NUnit.Framework.DescriptionAttribute("Correctly added booking for rental with 3 unit, update renatl by increasing prepa" +
+            "ration time and check calendar")]
+        public virtual void CorrectlyAddedBookingForRentalWith3UnitUpdateRenatlByIncreasingPreparationTimeAndCheckCalendar()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("+++++   Correctly added booking for rental with 3 unit and check calendar", null, tagsOfScenario, argumentsOfScenario);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Correctly added booking for rental with 3 unit, update renatl by increasing prepa" +
+                    "ration time and check calendar", null, tagsOfScenario, argumentsOfScenario);
 #line 53
 this.ScenarioInitialize(scenarioInfo);
 #line hidden

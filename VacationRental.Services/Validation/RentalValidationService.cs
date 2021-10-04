@@ -36,7 +36,7 @@ namespace VacationRental.Services.Validation
                 return GetServiceResponse(ResponseStatus.ValidationFailed, VacationRentalConstants.IncorrectUnitsErrorMessage);
             }
 
-            return request.PreparationTimeInDays < 0 
+            return request.PreparationTimeInDays <= 0 
                 ? GetServiceResponse(ResponseStatus.ValidationFailed, VacationRentalConstants.IncorrectPreparationTimeErrorMessage) 
                 : GetServiceResponse<string>(ResponseStatus.Success);
         }

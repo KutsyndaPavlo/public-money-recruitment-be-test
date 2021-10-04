@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using System.Net;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace VacationRental.Api.Middlewares
 {
+    [ExcludeFromCodeCoverage]
     public static class ExceptionMiddlewareExtensions
     {
         public static void ConfigureExceptionHandler(this IApplicationBuilder app, ILoggerFactory loggerFactory)

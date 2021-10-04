@@ -1,6 +1,6 @@
 ﻿namespace VacationRental.Dal.Interface.Entities
 {
-    public class RentalEntityCreate : BaseEntity
+    public class RentalEntityCreate
     {
         public int Units { get; set; }
 

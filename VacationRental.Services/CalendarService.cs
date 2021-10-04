@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Remotion.Linq.Clauses.ResultOperators;
 using VacationRental.Dal.Interface;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;

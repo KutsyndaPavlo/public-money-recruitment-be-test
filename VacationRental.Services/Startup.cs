@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using VacationRental.Dal.InMemory;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Dal.PostgreSql;
@@ -14,6 +15,7 @@ using VacationRental.Services.Validation;
 
 namespace VacationRental.Services
 {
+    [ExcludeFromCodeCoverage]
     public static class Startup
     {
         private static Action<IMapperConfigurationExpression> autoMapperConfig =
@@ -33,7 +35,7 @@ namespace VacationRental.Services
                 config.CreateMap<BookingBindingModel, BookingEntityCreate>();
             };
 
-        public static IServiceCollection ConfigureServiceDependencies(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection ConfigureServiceDependencies(this IServiceCollection services, string connectionString)
         {
             services.AddAutoMapper(autoMapperConfig, typeof(Profile).Assembly);
 
@@ -43,9 +45,7 @@ namespace VacationRental.Services
             services.AddScoped<IBookingValidationService, BookingValidationService>();
             services.AddScoped<IRentalValidationService, RentalValidationService>();
             services.AddScoped<ICalendarValidationService, CalendarValidationService>();
-
-            var connectionString = configuration.GetConnectionString("VacationRentals");
-
+            
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 // Use InMemory database

@@ -32,7 +32,7 @@ Scenario: Update rental by increasing units and descreasing preparation time and
 	When get updated rental by id
 	Then the result should be 200 and units 5 and preparation time 1
 
-Scenario: Update rental by descreasing units and get 409 status code in response due to overlapping
+Scenario: Update rental by descreasing units and get 409 status code in response due to OverBooking
 	Given rental with 3 units and preparation time 2 is created
 	And booking for "2031-01-01" for 3 nights is created
 	And booking for "2031-01-01" for 3 nights is created
@@ -40,7 +40,7 @@ Scenario: Update rental by descreasing units and get 409 status code in response
 	When update rental by setting 2 units and preparation time 2
 	Then the rental update result should be 409
 
-Scenario: Update rental by increasing preparation time and get 409 status code in response due to overlapping 
+Scenario: Update rental by increasing preparation time and get 409 status code in response due to OverBooking 
 	Given rental with 3 units and preparation time 2 is created
 	And booking for "2031-01-01" for 3 nights is created
 	And booking for "2031-01-02" for 3 nights is created

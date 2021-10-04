@@ -69,8 +69,8 @@ namespace VacationRental.Services
                 DateTime.MaxValue.Date);
 
 
-            if (IsOverlappingDueToUnitDecreasing(bookings, rental, request.Units) ||
-                IsOverlappingDueToPreparationTimeIncreasing(bookings, rental, request.PreparationTimeInDays))
+            if (IsOverBookingDueToUnitDecreasing(bookings, rental, request.Units) ||
+                IsOverBookingDueToPreparationTimeIncreasing(bookings, rental, request.PreparationTimeInDays))
 
             {
                 return GetServiceResponse<RentalViewModel>(ResponseStatus.Conflict);
@@ -91,7 +91,7 @@ namespace VacationRental.Services
                    || request.Units != rental.Units;
         }
 
-        private bool IsOverlappingDueToUnitDecreasing(IEnumerable<BookingEntity> bookings, RentalEntity rental, int updatedUnits)
+        private bool IsOverBookingDueToUnitDecreasing(IEnumerable<BookingEntity> bookings, RentalEntity rental, int updatedUnits)
         {
             if (updatedUnits >= rental.Units)
             {
@@ -105,7 +105,7 @@ namespace VacationRental.Services
             return bookings.Any(booking => decreasedUnits.Any(unitId => unitId == booking.UnitId));
         }
 
-        private bool IsOverlappingDueToPreparationTimeIncreasing(IEnumerable<BookingEntity> bookings,
+        private bool IsOverBookingDueToPreparationTimeIncreasing(IEnumerable<BookingEntity> bookings,
                                                                  RentalEntity rental,
                                                                  int updatedPreparationTimeInDays)
         {
@@ -117,7 +117,7 @@ namespace VacationRental.Services
             return bookings.GroupBy(x => x.UnitId)
                            .Any(bookingsGroup =>
                            {
-                               var isOverlapping = false;
+                               var isOverBooking = false;
                                BookingEntity previous = null;
                                foreach (var booking in bookingsGroup.OrderBy(x => x.BookingStart))
                                {
@@ -126,7 +126,7 @@ namespace VacationRental.Services
                                        var daysForNextBooking = (booking.BookingStart - previous.BookingEnd).Days;
                                        if (daysForNextBooking <= updatedPreparationTimeInDays)
                                        {
-                                           isOverlapping = true;
+                                           isOverBooking = true;
                                            break;
                                        }
                                    }
@@ -134,7 +134,7 @@ namespace VacationRental.Services
                                    previous = booking;
                                }
 
-                               return isOverlapping;
+                               return isOverBooking;
                            });
         }
 
@@ -162,7 +162,6 @@ namespace VacationRental.Services
             async Task<RentalEntity> UpdateRental(PutRentalRequest putRequest)
             {
                 var rentalEntity = _mapper.Map<RentalEntity>(putRequest);
-                rentalEntity.Id = request.RentalId;
                 return await _unitOfWork.RentalsRepository.UpdateAsync(rentalEntity);
             }
 

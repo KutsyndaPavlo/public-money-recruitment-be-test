@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -24,7 +23,8 @@ namespace VacationRental.Services
                 config.CreateMap<RentalEntity, RentalViewModel>().ReverseMap();
                 config.CreateMap<RentalEntity, ResourceIdViewModel>();
                 config.CreateMap<RentalBindingModel, RentalEntityCreate>();
-                config.CreateMap<PutRentalRequest, RentalEntity>();
+                config.CreateMap<PutRentalRequest, RentalEntity>()
+                    .ForMember(d => d.Id, opt => opt.MapFrom(x => x.RentalId));
                 config.CreateMap<RentalBindingModel, RentalEntity>();
                 config.CreateMap<BookingEntity, BookingViewModel>()
                       .ForMember(d => d.Unit, opt => opt.MapFrom(x => x.UnitId))

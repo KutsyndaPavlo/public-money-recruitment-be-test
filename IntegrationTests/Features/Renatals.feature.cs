@@ -296,14 +296,14 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Update rental by descreasing units and get 409 status code in response due to ove" +
-            "rlapping")]
-        public virtual void UpdateRentalByDescreasingUnitsAndGet409StatusCodeInResponseDueToOverlapping()
+        [NUnit.Framework.DescriptionAttribute("Update rental by descreasing units and get 409 status code in response due to Ove" +
+            "rBooking")]
+        public virtual void UpdateRentalByDescreasingUnitsAndGet409StatusCodeInResponseDueToOverBooking()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update rental by descreasing units and get 409 status code in response due to ove" +
-                    "rlapping", null, tagsOfScenario, argumentsOfScenario);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update rental by descreasing units and get 409 status code in response due to Ove" +
+                    "rBooking", null, tagsOfScenario, argumentsOfScenario);
 #line 35
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -348,13 +348,13 @@ this.ScenarioInitialize(scenarioInfo);
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Update rental by increasing preparation time and get 409 status code in response " +
-            "due to overlapping")]
-        public virtual void UpdateRentalByIncreasingPreparationTimeAndGet409StatusCodeInResponseDueToOverlapping()
+            "due to OverBooking")]
+        public virtual void UpdateRentalByIncreasingPreparationTimeAndGet409StatusCodeInResponseDueToOverBooking()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update rental by increasing preparation time and get 409 status code in response " +
-                    "due to overlapping", null, tagsOfScenario, argumentsOfScenario);
+                    "due to OverBooking", null, tagsOfScenario, argumentsOfScenario);
 #line 43
 this.ScenarioInitialize(scenarioInfo);
 #line hidden

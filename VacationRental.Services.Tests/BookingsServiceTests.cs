@@ -296,7 +296,7 @@ namespace VacationRental.Services.Tests
         }
 
         [Test]
-        public async Task GetByIdAsync_WhenThereAreBookingOverlapping_ThenReturnsConflictResult()
+        public async Task GetByIdAsync_WhenThereAreBookingOverBooking_ThenReturnsConflictResult()
         {
             // Arrange
             var request = new BookingBindingModel

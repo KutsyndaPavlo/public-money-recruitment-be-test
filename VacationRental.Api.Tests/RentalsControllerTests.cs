@@ -307,7 +307,7 @@ namespace VacationRental.Api.Tests
         }
 
         [Test]
-        public async Task Put_WhenUpdatingRentalAndThereIsOverlappings_ThenReturns409ConflictResponse()
+        public async Task Put_WhenUpdatingRentalAndThereIsOverBookings_ThenReturns409ConflictResponse()
         {
             // Arrange
             var rentalId = 1;

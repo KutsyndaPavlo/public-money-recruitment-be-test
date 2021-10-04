@@ -220,7 +220,7 @@ namespace VacationRental.Api.Tests
 
 
         [Test]
-        public async Task Post_WhenPostBookingAndThereIsOverlapping_ThenReturns409ConflictResponse()
+        public async Task Post_WhenPostBookingAndThereIsOverBooking_ThenReturns409ConflictResponse()
         {
             // Arrange
             var booking = new BookingBindingModel

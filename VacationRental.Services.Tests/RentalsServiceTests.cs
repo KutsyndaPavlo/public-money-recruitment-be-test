@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
 using Moq;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using NUnit.Framework.Internal;
 using VacationRental.Dal.Interface;
 using VacationRental.Dal.Interface.Entities;
 using VacationRental.Services.Interface;
@@ -193,7 +193,7 @@ namespace VacationRental.Services.Tests
         }
 
         [Test]
-        public async Task UpdateAsync_WhenThereAreNoBookingOverlapping_ThenReturnsUpdatedRental()
+        public async Task UpdateAsync_WhenThereAreNoBookingOverBooking_ThenReturnsUpdatedRental()
         {
             // Arrange
             var request = new PutRentalRequest
@@ -204,6 +204,13 @@ namespace VacationRental.Services.Tests
             };
 
             var rentalEntity = new RentalEntity
+            {
+                Id = 1,
+                PreparationTimeInDays = 2,
+                Units = 6
+            };
+
+            var updatedRentalEntity = new RentalEntity
             {
                 Id = 1,
                 PreparationTimeInDays = 2,
@@ -223,19 +230,19 @@ namespace VacationRental.Services.Tests
                 .ReturnsAsync(rentalEntity);
 
             _unitOfWorkMock
-                .Setup(x => x.RentalsRepository
-                    .UpdateAsync(It.Is<RentalEntity>(y => y.Units == 5 && y.PreparationTimeInDays == 2 && y.Id == 1)))
-                .ReturnsAsync(rentalEntity);
-
-            _unitOfWorkMock
                 .Setup(x => x.BookingsRepository
                     .GetBookingsAsync(It.Is<int>(y => y == 1), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(new List<BookingEntity>());
 
+            _unitOfWorkMock
+                .Setup(x => x.RentalsRepository
+                    .UpdateAsync(It.Is<RentalEntity>(y => y.Units == 5 && y.PreparationTimeInDays == 2 && y.Id == 1)))
+                .ReturnsAsync(updatedRentalEntity);
+
             _mapperMock.Setup(x =>
                     x.Map<RentalEntity>(It.Is<PutRentalRequest>(y =>
                         y.Units == 5 && y.PreparationTimeInDays == 2)))
-                .Returns(rentalEntity);
+                .Returns(updatedRentalEntity);
 
             _mapperMock.Setup(x =>
                     x.Map<RentalViewModel>(It.Is<RentalEntity>(y =>
@@ -250,10 +257,100 @@ namespace VacationRental.Services.Tests
             Assert.IsInstanceOf<ServiceResponse<RentalViewModel>>(result);
             Assert.AreEqual(ResponseStatus.Success, result.Status);
             Assert.AreEqual(expectedResult, result.Result);
+
+            _unitOfWorkMock.Verify(x => x.RentalsRepository.UpdateAsync(It.Is<RentalEntity>(y =>
+                y.Id == request.RentalId && y.Units == request.Units && y.PreparationTimeInDays == request.PreparationTimeInDays)), Times.Once);
+            _unitOfWorkMock.Verify(x => x.BookingsRepository.BulkUpdateAsync(It.Is<IEnumerable<BookingEntity>>(y => !y.Any())), Times.Once);
         }
 
         [Test]
-        public async Task UpdateAsync_WhenThereIsOverlappingDueToDecreasingUnits_ThenReturnsConflictResponse()
+        public async Task UpdateAsync_WhenThereAreNoBookingOverBooking_ThenUpdatesExistingBookingAndReturnsUpdatedRental()
+        {
+            // Arrange
+            var request = new PutRentalRequest
+            {
+                RentalId = 1,
+                Units = 5,
+                PreparationTimeInDays = 2
+            };
+
+            var rentalEntity = new RentalEntity
+            {
+                Id = 1,
+                PreparationTimeInDays = 2,
+                Units = 6
+            };
+
+            var updatedRentalEntity = new RentalEntity
+            {
+                Id = 1,
+                PreparationTimeInDays = 2,
+                Units = 5
+            };
+
+            var availableBookings = new List<BookingEntity>
+            {
+                new BookingEntity
+                {
+                    RentalId = rentalEntity.Id,
+                    Id = 9,
+                    UnitId = 1,
+                    BookingNights = 5,
+                    BookingStart =  DateTime.Parse("2022-06-01"),
+                    BookingEnd = DateTime.Parse("2022-06-01").AddDays(5 - 1),
+                    PreparationStart = DateTime.Parse("2022-06-01").AddDays(5),
+                    PreparationEnd = DateTime.Parse("2022-06-01").AddDays(5 + rentalEntity.PreparationTimeInDays - 1)
+                }
+            };
+
+            var expectedResult = new RentalViewModel
+            {
+                Id = request.RentalId,
+                Units = request.Units,
+                PreparationTimeInDays = request.PreparationTimeInDays
+            };
+
+            _unitOfWorkMock
+                .Setup(x => x.RentalsRepository
+                    .GetByIdAsync(It.Is<int>(y => y == 1)))
+                .ReturnsAsync(rentalEntity);
+
+            _unitOfWorkMock
+                .Setup(x => x.BookingsRepository
+                    .GetBookingsAsync(It.Is<int>(y => y == 1), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(availableBookings);
+
+            _unitOfWorkMock
+                .Setup(x => x.RentalsRepository
+                    .UpdateAsync(It.Is<RentalEntity>(y => y.Units == 5 && y.PreparationTimeInDays == 2 && y.Id == 1)))
+                .ReturnsAsync(updatedRentalEntity);
+
+            _mapperMock.Setup(x =>
+                    x.Map<RentalEntity>(It.Is<PutRentalRequest>(y =>
+                        y.Units == 5 && y.PreparationTimeInDays == 2)))
+                .Returns(updatedRentalEntity);
+
+            _mapperMock.Setup(x =>
+                    x.Map<RentalViewModel>(It.Is<RentalEntity>(y =>
+                        y.Units == 5 && y.PreparationTimeInDays == 2 && y.Id == 1)))
+                .Returns(expectedResult);
+
+            // Act
+            var result = await _rentalsService.UpdateAsync(request);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<ServiceResponse<RentalViewModel>>(result);
+            Assert.AreEqual(ResponseStatus.Success, result.Status);
+            Assert.AreEqual(expectedResult, result.Result);
+
+            _unitOfWorkMock.Verify(x => x.RentalsRepository.UpdateAsync(It.Is<RentalEntity>(y =>
+                y.Id == request.RentalId && y.Units == request.Units && y.PreparationTimeInDays == request.PreparationTimeInDays)), Times.Once);
+            _unitOfWorkMock.Verify(x => x.BookingsRepository.BulkUpdateAsync(It.Is<IEnumerable<BookingEntity>>(y => y.Count() == 1)), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateAsync_WhenThereIsOverBookingDueToDecreasingUnits_ThenReturnsConflictResponse()
         {
             // Arrange
             var request = new PutRentalRequest
@@ -310,7 +407,7 @@ namespace VacationRental.Services.Tests
         }
 
         [Test]
-        public async Task UpdateAsync_WhenThereIsOverlappingDueToIncreasingPreparationTime_ThenReturnsConflictResponse()
+        public async Task UpdateAsync_WhenThereIsOverBookingDueToIncreasingPreparationTime_ThenReturnsConflictResponse()
         {
             // Arrange
             var request = new PutRentalRequest
@@ -333,7 +430,7 @@ namespace VacationRental.Services.Tests
                 {
                     RentalId = request.RentalId,
                     Id = 9,
-                    UnitId = 1, 
+                    UnitId = 1,
                     BookingStart = DateTime.Parse("2022-01-01"),
                     BookingNights = 10,
                     BookingEnd = DateTime.Parse("2022-01-10"),

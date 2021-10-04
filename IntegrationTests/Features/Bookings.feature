@@ -37,13 +37,13 @@ Scenario: Add booking 3 times and get 409 status code in response in 4-th time
 	When booking for "2002-01-01" for 8 nights is posted
 	Then the result should be 409 and message "Not available"
 
-Scenario: Add booking and get 409 status code in response due to overlapping of first preparation day
+Scenario: Add booking and get 409 status code in response due to OverBooking of first preparation day
 	Given rental with 1 units and preparation time 2 is created
 	And booking for "2002-01-01" for 7 nights is created
 	When booking for "2002-01-08" for 6 nights is posted
 	Then the result should be 409 and message "Not available"
 
-Scenario: Add booking and get 409 status code in response result due to overlapping of last preparation day
+Scenario: Add booking and get 409 status code in response result due to OverBooking of last preparation day
 	Given rental with 1 units and preparation time 2 is created
 	And booking for "2002-01-01" for 7 nights is created
 	When booking for "2002-01-09" for 6 nights is posted

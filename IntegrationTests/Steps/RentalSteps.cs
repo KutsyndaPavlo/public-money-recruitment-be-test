@@ -56,7 +56,7 @@ namespace IntegrationTests.Steps
         [When(@"get updated rental by id")]
         public async Task WhenGetUpdatedRentalById()
         {
-            var rental = _context.Get<ResourceIdViewModel>("rental_update_response");
+            var rental = _context.Get<RentalViewModel>("rental_update_response");
 
             var response = await ApiContext.Client.GetAsync($"api/v1/rentals/{rental.Id}").ConfigureAwait(false);
 
@@ -122,7 +122,7 @@ namespace IntegrationTests.Steps
                 Assert.Fail($"Expected response status code to be {System.Net.HttpStatusCode.OK}, but got {response.StatusCode}.");
             }
 
-            var responseData = JsonConvert.DeserializeObject<ResourceIdViewModel>(await response.Content.ReadAsStringAsync());
+            var responseData = JsonConvert.DeserializeObject<RentalViewModel>(await response.Content.ReadAsStringAsync());
 
             _context.Set(responseData, "rental_update_response");
         }

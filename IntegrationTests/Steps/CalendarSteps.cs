@@ -34,7 +34,7 @@ namespace IntegrationTests.Features
         [When(@"get calendar by rental id after updates from ""(.*)"" and (.*) nights")]
         public async Task WhenGetCalendarByRentalIdFromAndNights_1(string startDate, int nights)
         {
-            var rental = _context.Get<ResourceIdViewModel>("rental_update_response");
+            var rental = _context.Get<RentalViewModel>("rental_update_response");
 
             var response = await ApiContext.Client.GetAsync($"api/v1/calendar/?rentalId={rental.Id}&start={startDate}&nights={nights}").ConfigureAwait(false);
 

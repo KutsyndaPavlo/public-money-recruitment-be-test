@@ -49,18 +49,18 @@ namespace VacationRental.Services
             return GetServiceResponse(ResponseStatus.Success, _mapper.Map<ResourceIdViewModel>(createdRental));
         }
 
-        public async Task<ServiceResponse<ResourceIdViewModel>> UpdateAsync(PutRentalRequest request)
+        public async Task<ServiceResponse<RentalViewModel>> UpdateAsync(PutRentalRequest request)
         {
             var rental = await _unitOfWork.RentalsRepository.GetByIdAsync(request.RentalId);
 
             if (rental == null)
             {
-                return GetServiceResponse<ResourceIdViewModel>(ResponseStatus.RentalNotFound);
+                return GetServiceResponse<RentalViewModel>(ResponseStatus.RentalNotFound);
             }
 
             if (!RentalChanged(request, rental))
             {
-                return GetServiceResponse(ResponseStatus.Success, _mapper.Map<ResourceIdViewModel>(rental));
+                return GetServiceResponse(ResponseStatus.Success, _mapper.Map<RentalViewModel>(rental));
             }
 
             var bookings = await _unitOfWork.BookingsRepository.GetBookingsAsync(
@@ -73,12 +73,12 @@ namespace VacationRental.Services
                 IsOverlappingDueToPreparationTimeIncreasing(bookings, rental, request.PreparationTimeInDays))
 
             {
-                return GetServiceResponse<ResourceIdViewModel>(ResponseStatus.Conflict);
+                return GetServiceResponse<RentalViewModel>(ResponseStatus.Conflict);
             }
 
             var updatedRental = await UpdateRentalAndBookings(request, bookings);
 
-            return GetServiceResponse(ResponseStatus.Success, _mapper.Map<ResourceIdViewModel>(updatedRental));
+            return GetServiceResponse(ResponseStatus.Success, _mapper.Map<RentalViewModel>(updatedRental));
         }
 
         #endregion

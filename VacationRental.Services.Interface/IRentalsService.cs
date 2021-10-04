@@ -10,6 +10,6 @@ namespace VacationRental.Services.Interface
 
         Task<ServiceResponse<RentalViewModel>> GetByIdAsync(GetRentalRequest request);
 
-        Task<ServiceResponse<ResourceIdViewModel>> UpdateAsync(PutRentalRequest request);
+        Task<ServiceResponse<RentalViewModel>> UpdateAsync(PutRentalRequest request);
     }
 }

@@ -85,7 +85,7 @@ namespace VacationRental.Api.Controllers
         [HttpPut]
         [Route("{rentalId:int}")]
         [SwaggerOperation(Tags = new[] { "Update a rental" })]
-        [SwaggerResponse(StatusCodes.Status200OK, "The updated rental", typeof(ResourceIdViewModel))]
+        [SwaggerResponse(StatusCodes.Status200OK, "The updated rental", typeof(RentalViewModel))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Rental not found", typeof(string))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during rental updating")]

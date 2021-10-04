@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
+using Moq; 
 using NUnit.Framework;
 using System.Threading.Tasks;
 using VacationRental.Api.Controllers;
@@ -37,8 +38,10 @@ namespace VacationRental.Api.Tests
 
         #region Tests
 
+        #region Get
+
         [Test]
-        public async Task Get_WhenGetBookingByIncorrectId_ThenReturnsBadRequestResponse()
+        public async Task Get_WhenGetBookingByIncorrectId_ThenReturns400BadRequestResponse()
         {
             // Arrange
             var bookingId = -5;
@@ -59,7 +62,7 @@ namespace VacationRental.Api.Tests
         }
 
         [Test]
-        public async Task Get_WhenGetBookingByMissingBookingId_ThenReturnNotFoundResponse()
+        public async Task Get_WhenGetBookingByMissingBookingId_ThenReturns404NotFoundResponse()
         {
             // Arrange
             var bookingId = 999999999;
@@ -84,7 +87,7 @@ namespace VacationRental.Api.Tests
         }
 
         [Test]
-        public async Task Get_WhenGetBookingByCorrectBookingId_ThenReturnOkResponseAndCorrectResponseData()
+        public async Task Get_WhenGetBookingByCorrectBookingId_ThenReturns200OkResponseAndCorrectResponseData()
         {
             // Arrange
             var bookingId = 1;
@@ -111,6 +114,145 @@ namespace VacationRental.Api.Tests
             var actualBooking = objectResult.Value as BookingViewModel;
             Assert.AreSame(expectedBooking, actualBooking);
         }
+
+        #endregion
+
+        #region Post
+
+        [Test]
+        public async Task Post_WhenPostBookingWithCorrectParameters_ThenReturns201CreatedResponseAndCorrectResponseData()
+        {
+            // Arrange
+            var booking = new BookingBindingModel
+            {   
+                RentalId = 1, 
+                Nights = 5, 
+                Start = DateTime.Now.AddDays(5)
+            };
+
+            var expectedResponseData = new ResourceIdViewModel { Id = 1 };
+
+            _bookingValidationServiceMock
+                .Setup(x => x.ValidatePostRequest(It.Is<BookingBindingModel>(
+                    y => y.RentalId == 1 && y.Nights == 5)))
+                .Returns(new ServiceResponse<string> { Status = ResponseStatus.Success });
+
+            _bookingsServiceMock
+                .Setup(x => x.AddAsync(It.Is<BookingBindingModel>(y =>
+                    y.RentalId == 1 && y.Nights == 5)))
+                .ReturnsAsync(new ServiceResponse<ResourceIdViewModel> { Status = ResponseStatus.Success, Result = expectedResponseData });
+
+            // Act
+            var result = await _bookingsController.Post(booking);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<IActionResult>(result);
+
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(StatusCodes.Status201Created, objectResult.StatusCode);
+
+            var actualBooking = objectResult.Value as ResourceIdViewModel;
+            Assert.AreSame(expectedResponseData, actualBooking);
+        }
+
+        [Test]
+        public async Task Post_WhenPostBookingWithNotValidNight_ThenReturns400BadRequestResponse()
+        {
+            // Arrange
+            var booking = new BookingBindingModel
+            {
+                RentalId = 1,
+                Nights = 0,
+                Start = DateTime.Now.AddDays(5)
+            };
+
+            _bookingValidationServiceMock
+                .Setup(x => x.ValidatePostRequest(It.Is<BookingBindingModel>(
+                    y => y.RentalId == 1 && y.Nights == 0)))
+                .Returns(new ServiceResponse<string> { Status = ResponseStatus.ValidationFailed });
+
+            // Act
+            var result = await _bookingsController.Post(booking);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<IActionResult>(result);
+
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(StatusCodes.Status400BadRequest, objectResult.StatusCode);
+        }
+
+        [Test]
+        public async Task Post_WhenPostBookingWithMissingRentalId_ThenReturns400BadRequestResponse()
+        {
+            // Arrange
+            var booking = new BookingBindingModel
+            {
+                RentalId = 1,
+                Nights = 10,
+                Start = DateTime.Now.AddDays(5)
+            };
+
+            _bookingValidationServiceMock
+                .Setup(x => x.ValidatePostRequest(It.Is<BookingBindingModel>(
+                    y => y.RentalId == 1 && y.Nights == 10)))
+                .Returns(new ServiceResponse<string> { Status = ResponseStatus.Success });
+
+            _bookingsServiceMock
+                .Setup(x => x.AddAsync(It.Is<BookingBindingModel>(y =>
+                    y.RentalId == 1 && y.Nights == 10)))
+                .ReturnsAsync(new ServiceResponse<ResourceIdViewModel> { Status = ResponseStatus.RentalNotFound });
+
+            // Act
+            var result = await _bookingsController.Post(booking);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<IActionResult>(result);
+
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(StatusCodes.Status400BadRequest, objectResult.StatusCode);
+        }
+
+
+        [Test]
+        public async Task Post_WhenPostBookingAndThereIsOverlapping_ThenReturns409ConflictResponse()
+        {
+            // Arrange
+            var booking = new BookingBindingModel
+            {
+                RentalId = 1,
+                Nights = 10,
+                Start = DateTime.Now.AddDays(5)
+            };
+
+            _bookingValidationServiceMock
+                .Setup(x => x.ValidatePostRequest(It.Is<BookingBindingModel>(
+                    y => y.RentalId == 1 && y.Nights == 10)))
+                .Returns(new ServiceResponse<string> { Status = ResponseStatus.Success });
+
+            _bookingsServiceMock
+                .Setup(x => x.AddAsync(It.Is<BookingBindingModel>(y =>
+                    y.RentalId == 1 && y.Nights == 10)))
+                .ReturnsAsync(new ServiceResponse<ResourceIdViewModel> { Status = ResponseStatus.Conflict });
+
+            // Act
+            var result = await _bookingsController.Post(booking);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<IActionResult>(result);
+
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(StatusCodes.Status409Conflict, objectResult.StatusCode);
+        }
+
+        #endregion
 
         #endregion
     }

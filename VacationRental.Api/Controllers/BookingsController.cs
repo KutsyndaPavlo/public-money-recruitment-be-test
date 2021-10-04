@@ -18,14 +18,14 @@ namespace VacationRental.Api.Controllers
         #region Fields 
 
         private readonly IBookingsService _bookingsService;
-        private readonly IBookingValidatinService _bookingValidationService;
+        private readonly IBookingValidationService _bookingValidationService;
 
         #endregion
 
         #region Constructor
 
         public BookingsController(IBookingsService bookingsService,
-                                  IBookingValidatinService bookingValidationService)
+                                  IBookingValidationService bookingValidationService)
         {
             _bookingsService = bookingsService;
             _bookingValidationService = bookingValidationService;

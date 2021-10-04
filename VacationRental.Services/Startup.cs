@@ -40,7 +40,7 @@ namespace VacationRental.Services
             services.AddScoped<IRentalsService, RentalsService>();
             services.AddScoped<IBookingsService, BookingsService>();
             services.AddScoped<ICalendarService, CalendarService>();
-            services.AddScoped<IBookingValidatinService, BookingValidationService>();
+            services.AddScoped<IBookingValidationService, BookingValidationService>();
             services.AddScoped<IRentalValidationService, RentalValidationService>();
             services.AddScoped<ICalendarValidationService, CalendarValidationService>();
 

@@ -6,7 +6,7 @@ using VacationRental.Services.Interface.Validation;
 
 namespace VacationRental.Services.Validation
 {
-    public class BookingValidationService : ServiceBase, IBookingValidatinService
+    public class BookingValidationService : ServiceBase, IBookingValidationService
     {
         #region Methods
 

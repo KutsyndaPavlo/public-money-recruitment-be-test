@@ -3,7 +3,7 @@ using VacationRental.Services.Interface.Models.Shared;
 
 namespace VacationRental.Services.Interface.Validation
 {
-    public interface IBookingValidatinService
+    public interface IBookingValidationService
     {
         ServiceResponse<string> ValidateGetRequest(GetBookingRequest request);
 

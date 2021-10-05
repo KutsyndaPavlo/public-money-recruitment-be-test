@@ -1,7 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using VacationRental.Api.Models;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Threading.Tasks;
+using VacationRental.Services.Constants;
+using VacationRental.Services.Interface;
+using VacationRental.Services.Interface.Enums;
+using VacationRental.Services.Interface.Models.Bookings;
+using VacationRental.Services.Interface.Models.Shared;
+using VacationRental.Services.Interface.Validation;
 
 namespace VacationRental.Api.Controllers
 {
@@ -9,64 +15,79 @@ namespace VacationRental.Api.Controllers
     [ApiController]
     public class BookingsController : ControllerBase
     {
-        private readonly IDictionary<int, RentalViewModel> _rentals;
-        private readonly IDictionary<int, BookingViewModel> _bookings;
+        #region Fields 
 
-        public BookingsController(
-            IDictionary<int, RentalViewModel> rentals,
-            IDictionary<int, BookingViewModel> bookings)
+        private readonly IBookingsService _bookingsService;
+        private readonly IBookingValidationService _bookingValidationService;
+
+        #endregion
+
+        #region Constructor
+
+        public BookingsController(IBookingsService bookingsService,
+                                  IBookingValidationService bookingValidationService)
         {
-            _rentals = rentals;
-            _bookings = bookings;
+            _bookingsService = bookingsService;
+            _bookingValidationService = bookingValidationService;
         }
+
+        #endregion
+
+        #region Actions
 
         [HttpGet]
         [Route("{bookingId:int}")]
-        public BookingViewModel Get(int bookingId)
+        [SwaggerOperation(Tags = new[] { "Get a booking by id" })]
+        [SwaggerResponse(StatusCodes.Status200OK, "The booking", typeof(BookingViewModel))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Booking not found", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
+        public async Task<IActionResult> Get(int bookingId)
         {
-            if (!_bookings.ContainsKey(bookingId))
-                throw new ApplicationException("Booking not found");
+            var request = new GetBookingRequest { BookingId = bookingId };
 
-            return _bookings[bookingId];
+            var validationResult = _bookingValidationService.ValidateGetRequest(request);
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
+            {
+                return BadRequest(validationResult.Result);
+            }
+
+            var result = await _bookingsService.GetAsync(request);
+            if (result.Status == ResponseStatus.BookingNotFound)
+            {
+                return NotFound(VacationRentalConstants.BookingNotFoundErrorMessage);
+            }
+
+            return Ok(result.Result);
         }
 
         [HttpPost]
-        public ResourceIdViewModel Post(BookingBindingModel model)
+        [SwaggerOperation(Tags = new[] { "Create a booking" })]
+        [SwaggerResponse(StatusCodes.Status201Created, "The created booking id", typeof(ResourceIdViewModel))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "Conflict during adding a booking")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
+        public async Task<IActionResult> Post(BookingBindingModel request)
         {
-            if (model.Nights <= 0)
-                throw new ApplicationException("Nigts must be positive");
-            if (!_rentals.ContainsKey(model.RentalId))
-                throw new ApplicationException("Rental not found");
-
-            for (var i = 0; i < model.Nights; i++)
+            var validationResult = _bookingValidationService.ValidatePostRequest(request);
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
             {
-                var count = 0;
-                foreach (var booking in _bookings.Values)
-                {
-                    if (booking.RentalId == model.RentalId
-                        && (booking.Start <= model.Start.Date && booking.Start.AddDays(booking.Nights) > model.Start.Date)
-                        || (booking.Start < model.Start.AddDays(model.Nights) && booking.Start.AddDays(booking.Nights) >= model.Start.AddDays(model.Nights))
-                        || (booking.Start > model.Start && booking.Start.AddDays(booking.Nights) < model.Start.AddDays(model.Nights)))
-                    {
-                        count++;
-                    }
-                }
-                if (count >= _rentals[model.RentalId].Units)
-                    throw new ApplicationException("Not available");
+                return BadRequest(validationResult.Result);
             }
 
+            var result = await _bookingsService.AddAsync(request);
 
-            var key = new ResourceIdViewModel { Id = _bookings.Keys.Count + 1 };
-
-            _bookings.Add(key.Id, new BookingViewModel
+            switch (result.Status)
             {
-                Id = key.Id,
-                Nights = model.Nights,
-                RentalId = model.RentalId,
-                Start = model.Start.Date
-            });
-
-            return key;
+                case ResponseStatus.RentalNotFound:
+                    return BadRequest(VacationRentalConstants.RentalNotFoundErrorMessage);
+                case ResponseStatus.Conflict:
+                    return Conflict(VacationRentalConstants.BookingAddingConflictErrorMessage);
+                default:
+                    return CreatedAtAction(nameof(Get), new { bookingId = result.Result.Id }, result.Result);
+            }
         }
+
+        #endregion
     }
 }

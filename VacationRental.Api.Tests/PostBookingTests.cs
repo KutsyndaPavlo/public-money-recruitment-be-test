@@ -2,7 +2,9 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using VacationRental.Api.Models;
+using VacationRental.Services.Interface.Models.Bookings;
+using VacationRental.Services.Interface.Models.Rentals;
+using VacationRental.Services.Interface.Models.Shared;
 using Xunit;
 
 namespace VacationRental.Api.Tests
@@ -22,7 +24,8 @@ namespace VacationRental.Api.Tests
         {
             var postRentalRequest = new RentalBindingModel
             {
-                Units = 4
+                Units = 4,
+                PreparationTimeInDays = 1
             };
 
             ResourceIdViewModel postRentalResult;
@@ -34,9 +37,9 @@ namespace VacationRental.Api.Tests
 
             var postBookingRequest = new BookingBindingModel
             {
-                 RentalId = postRentalResult.Id,
-                 Nights = 3,
-                 Start = new DateTime(2001, 01, 01)
+                RentalId = postRentalResult.Id,
+                Nights = 3,
+                Start = new DateTime(2031, 01, 01)
             };
 
             ResourceIdViewModel postBookingResult;
@@ -58,11 +61,12 @@ namespace VacationRental.Api.Tests
         }
 
         [Fact]
-        public async Task GivenCompleteRequest_WhenPostBooking_ThenAPostReturnsErrorWhenThereIsOverbooking()
+        public async Task GivenCompleteRequest_WhenPostBooking_ThenAPostReturns409ConflictWhenThereIsOverbooking()
         {
             var postRentalRequest = new RentalBindingModel
             {
-                Units = 1
+                Units = 1,
+                PreparationTimeInDays = 1
             };
 
             ResourceIdViewModel postRentalResult;
@@ -91,12 +95,10 @@ namespace VacationRental.Api.Tests
                 Start = new DateTime(2002, 01, 02)
             };
 
-            await Assert.ThrowsAsync<ApplicationException>(async () =>
+            using (var postBooking2Response = await _client.PostAsJsonAsync($"/api/v1/bookings", postBooking2Request))
             {
-                using (var postBooking2Response = await _client.PostAsJsonAsync($"/api/v1/bookings", postBooking2Request))
-                {
-                }
-            });
+                Assert.True(postBooking2Response.StatusCode == HttpStatusCode.Conflict);
+            }
         }
     }
 }

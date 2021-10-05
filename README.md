@@ -1,3 +1,20 @@
+##  Vacation Rental updates
+
+There are ability to switch between 2 repositories:
+
+* VacationRental.Dal.InMemory (default)  - EF Core + InMemory database. This reposiory is used when connection string is disabled (commented) in appsettings.json;
+
+* VacationRental.Dal.PostgreSql - Dapper + PostgreSQL database in Docker. This repository can used after enabling (uncomment) connection string in appsettings.json;
+  Please note that before using this repository need to:
+          - intall docker locally;
+          - run docker container by clicking on *2_run_database_in_docker.bat*;
+ 
+  Script migrations is performed by Flyway (https://flywaydb.org/documentation/command/migrate).
+
+Addition to this, there was added Tests/IntegrationTests project that is based on Specflow ( https://docs.specflow.org/).
+If you faced difficulties with running integration tests, please add "SpecFlow for Visual Studio [version]" extension to Visul Studio.
+
+
 ## How we'd like to recieve the soluion?
 
 1. Clone this repository and upload it as a new public repository in your github account

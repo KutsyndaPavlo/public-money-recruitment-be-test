@@ -1,0 +1,1 @@
+docker build -t vacation-rental-api VacationRental.Api

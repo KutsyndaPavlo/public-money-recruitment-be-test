@@ -1,7 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using VacationRental.Api.Models;
+using Swashbuckle.AspNetCore.Annotations;
+using System;
+using System.Threading.Tasks;
+using VacationRental.Services.Constants;
+using VacationRental.Services.Interface;
+using VacationRental.Services.Interface.Enums;
+using VacationRental.Services.Interface.Models.Bookings;
+using VacationRental.Services.Interface.Models.Calendar;
+using VacationRental.Services.Interface.Validation;
 
 namespace VacationRental.Api.Controllers
 {
@@ -9,51 +16,58 @@ namespace VacationRental.Api.Controllers
     [ApiController]
     public class CalendarController : ControllerBase
     {
-        private readonly IDictionary<int, RentalViewModel> _rentals;
-        private readonly IDictionary<int, BookingViewModel> _bookings;
+        #region Fields
 
-        public CalendarController(
-            IDictionary<int, RentalViewModel> rentals,
-            IDictionary<int, BookingViewModel> bookings)
+        private readonly ICalendarService _calendarService;
+        private readonly ICalendarValidationService _calendarValidationService;
+
+        #endregion
+
+        #region Constructor
+
+        public CalendarController(ICalendarService calendarService,
+                                  ICalendarValidationService calendarValidationService)
         {
-            _rentals = rentals;
-            _bookings = bookings;
+            _calendarService = calendarService;
+            _calendarValidationService = calendarValidationService;
         }
+
+        #endregion
+
+        #region Methods
 
         [HttpGet]
-        public CalendarViewModel Get(int rentalId, DateTime start, int nights)
+        [SwaggerOperation(Tags = new[] { "Get a calendar" })]
+        [SwaggerResponse(StatusCodes.Status200OK, "The calendar", typeof(BookingViewModel))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad Request, validation error", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something has gone wrong.", typeof(string))]
+        public async Task<IActionResult> Get(int rentalId, DateTime start, int nights)
         {
-            if (nights < 0)
-                throw new ApplicationException("Nights must be positive");
-            if (!_rentals.ContainsKey(rentalId))
-                throw new ApplicationException("Rental not found");
-
-            var result = new CalendarViewModel 
+            var request = new GetCalendarRequest
             {
                 RentalId = rentalId,
-                Dates = new List<CalendarDateViewModel>() 
+                StartDate = start,
+                Nights = nights
             };
-            for (var i = 0; i < nights; i++)
+
+            var validationResult = _calendarValidationService.ValidateGetRequest(request);
+
+            if (validationResult.Status == ResponseStatus.ValidationFailed)
             {
-                var date = new CalendarDateViewModel
-                {
-                    Date = start.Date.AddDays(i),
-                    Bookings = new List<CalendarBookingViewModel>()
-                };
-
-                foreach (var booking in _bookings.Values)
-                {
-                    if (booking.RentalId == rentalId
-                        && booking.Start <= date.Date && booking.Start.AddDays(booking.Nights) > date.Date)
-                    {
-                        date.Bookings.Add(new CalendarBookingViewModel { Id = booking.Id });
-                    }
-                }
-
-                result.Dates.Add(date);
+                return BadRequest(validationResult.Result);
             }
 
-            return result;
+            var result = await _calendarService.GetAsync(request);
+
+            switch (result.Status)
+            {
+                case ResponseStatus.RentalNotFound:
+                    return BadRequest(VacationRentalConstants.RentalNotFoundErrorMessage);
+                default:
+                    return Ok(result.Result);
+            }
         }
+
+        #endregion
     }
 }
